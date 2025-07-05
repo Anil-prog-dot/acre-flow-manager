@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,14 +16,29 @@ const initialCustomers = [
 ];
 
 const Customers = () => {
-  const [customers, setCustomers] = useState(initialCustomers);
-  const [paidCustomers, setPaidCustomers] = useState([]);
+  const [customers, setCustomers] = useState(() => {
+    const saved = localStorage.getItem('customers_data');
+    return saved ? JSON.parse(saved) : initialCustomers;
+  });
+  const [paidCustomers, setPaidCustomers] = useState(() => {
+    const saved = localStorage.getItem('paid_customers');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: ""
   });
   const { toast } = useToast();
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('customers_data', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('paid_customers', JSON.stringify(paidCustomers));
+  }, [paidCustomers]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -44,7 +59,7 @@ const Customers = () => {
     }
 
     const newCustomer = {
-      id: customers.length + 1,
+      id: Date.now(),
       name: formData.name,
       email: "",
       phone: "",

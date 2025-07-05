@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,10 @@ import { FileText, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Miscellaneous = () => {
-  const [records, setRecords] = useState<Array<{id: number, date: string, amount: number, description: string}>>([]);
+  const [records, setRecords] = useState<Array<{id: number, date: string, amount: number, description: string}>>(() => {
+    const saved = localStorage.getItem('miscellaneous_data');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     date: "",
@@ -18,6 +21,11 @@ const Miscellaneous = () => {
     description: ""
   });
   const { toast } = useToast();
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('miscellaneous_data', JSON.stringify(records));
+  }, [records]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -38,7 +46,7 @@ const Miscellaneous = () => {
     }
 
     const newRecord = {
-      id: records.length + 1,
+      id: Date.now(),
       date: formData.date,
       amount: Number(formData.amount),
       description: formData.description

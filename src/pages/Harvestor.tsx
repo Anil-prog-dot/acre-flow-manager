@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,8 +70,14 @@ const initialPaidRecords = [
 ];
 
 const Harvestor = () => {
-  const [harvestorData, setHarvestorData] = useState(initialHarvestorData);
-  const [paidRecords, setPaidRecords] = useState(initialPaidRecords);
+  const [harvestorData, setHarvestorData] = useState(() => {
+    const saved = localStorage.getItem('harvestor_data');
+    return saved ? JSON.parse(saved) : initialHarvestorData;
+  });
+  const [paidRecords, setPaidRecords] = useState(() => {
+    const saved = localStorage.getItem('paid_records');
+    return saved ? JSON.parse(saved) : initialPaidRecords;
+  });
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -84,6 +90,15 @@ const Harvestor = () => {
     status: "Pending"
   });
   const { toast } = useToast();
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('harvestor_data', JSON.stringify(harvestorData));
+  }, [harvestorData]);
+
+  useEffect(() => {
+    localStorage.setItem('paid_records', JSON.stringify(paidRecords));
+  }, [paidRecords]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -118,7 +133,7 @@ const Harvestor = () => {
     const total = (acres * cost) + diesel + labor;
 
     const newRecord = {
-      id: harvestorData.length + 1,
+      id: Date.now(), // Use timestamp for unique ID
       date: formData.date,
       name: formData.name,
       acres: acres,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Check, X, Trash2, Receipt } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,7 +14,10 @@ const initialExpenses = [
 ];
 
 const Expenses = () => {
-  const [expenses, setExpenses] = useState(initialExpenses);
+  const [expenses, setExpenses] = useState(() => {
+    const saved = localStorage.getItem('expenses_data');
+    return saved ? JSON.parse(saved) : initialExpenses;
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     item: "",
@@ -22,6 +25,11 @@ const Expenses = () => {
     amount: ""
   });
   const { toast } = useToast();
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('expenses_data', JSON.stringify(expenses));
+  }, [expenses]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -42,7 +50,7 @@ const Expenses = () => {
     }
 
     const newExpense = {
-      id: expenses.length + 1,
+      id: Date.now(),
       item: formData.item,
       date: formData.date,
       amount: Number(formData.amount)
