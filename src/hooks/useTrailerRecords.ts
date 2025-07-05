@@ -23,17 +23,23 @@ export const useTrailerRecords = () => {
   const query = useQuery({
     queryKey: ["trailer-records"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("trailer_records")
-        .select("*")
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("trailer_records")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching trailer records:", error);
-        throw error;
+        if (error) {
+          console.error("Error fetching trailer records:", error);
+          // Return empty array instead of throwing to prevent app crash
+          return [];
+        }
+
+        return data as TrailerRecord[];
+      } catch (err) {
+        console.error("Unexpected error fetching trailer records:", err);
+        return [];
       }
-
-      return data as TrailerRecord[];
     },
   });
 
