@@ -464,9 +464,9 @@ const Harvestor = () => {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteRecord(record.id)}>
-                                Delete
-                              </AlertDialogAction>
+                         <AlertDialogAction onClick={() => deleteRecord(record.id)}>
+                           Delete
+                         </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

@@ -9,7 +9,173 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      customer_records: {
+        Row: {
+          acres: number
+          cost: number
+          created_at: string
+          customer_id: string
+          date: string
+          discount: number | null
+          id: string
+          paid: boolean | null
+          total: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          acres: number
+          cost: number
+          created_at?: string
+          customer_id: string
+          date: string
+          discount?: number | null
+          id?: string
+          paid?: boolean | null
+          total: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          acres?: number
+          cost?: number
+          created_at?: string
+          customer_id?: string
+          date?: string
+          discount?: number | null
+          id?: string
+          paid?: boolean | null
+          total?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_records_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          location: string | null
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          description: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          description: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      harvestor_records: {
+        Row: {
+          acres: number
+          cost: number
+          created_at: string
+          customer_name: string
+          date: string
+          id: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          acres: number
+          cost: number
+          created_at?: string
+          customer_name: string
+          date: string
+          id?: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          acres?: number
+          cost?: number
+          created_at?: string
+          customer_name?: string
+          date?: string
+          id?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      miscellaneous: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          description: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          description: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -10,43 +10,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useCustomers } from "@/hooks/useCustomers";
+import { useCustomerRecords } from "@/hooks/useCustomerRecords";
 
 const CustomerDetail = () => {
   const { id } = useParams();
+  const { customers, loading: customersLoading } = useCustomers();
+  const { records, loading: recordsLoading, addRecord, updateRecord, deleteRecord } = useCustomerRecords(id);
   const [customer, setCustomer] = useState<any>(null);
-  const [customers, setCustomers] = useState<any[]>([]);
 
   useEffect(() => {
-    // Load customers from localStorage
-    const savedCustomers = localStorage.getItem('customers_data');
-    const parsedCustomers = savedCustomers ? JSON.parse(savedCustomers) : [];
-    setCustomers(parsedCustomers);
-    
-    // Find the specific customer by ID
-    const foundCustomer = parsedCustomers.find((c: any) => c.id === Number(id));
-    if (foundCustomer) {
-      // Initialize records array if it doesn't exist
-      if (!foundCustomer.records) {
-        foundCustomer.records = [];
-      }
-      setCustomer(foundCustomer);
+    if (customers.length > 0 && id) {
+      const foundCustomer = customers.find((c: any) => c.id === id);
+      setCustomer(foundCustomer || null);
     }
-  }, [id]);
-
-  // Save customer data whenever it changes
-  useEffect(() => {
-    if (customer && customers.length > 0) {
-      const updatedCustomers = customers.map(c => 
-        c.id === customer.id ? customer : c
-      );
-      setCustomers(updatedCustomers);
-      localStorage.setItem('customers_data', JSON.stringify(updatedCustomers));
-    }
-  }, [customer, customers]);
+  }, [customers, id]);
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<number | null>(null);
-  const [editingDiscount, setEditingDiscount] = useState<number | null>(null);
+  const [editingRecord, setEditingRecord] = useState<string | null>(null);
+  const [editingDiscount, setEditingDiscount] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     date: "",
     type: "",
@@ -62,19 +44,14 @@ const CustomerDetail = () => {
     });
   };
 
-  const handleAddRecord = (e: React.FormEvent) => {
+  const handleAddRecord = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.date || !formData.type || !formData.acres || !formData.cost) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive"
-      });
+    if (!formData.date || !formData.type || !formData.acres || !formData.cost || !id) {
       return;
     }
 
     const newRecord = {
-      id: Date.now(),
+      customer_id: id,
       date: formData.date,
       type: formData.type,
       acres: Number(formData.acres),
@@ -84,82 +61,36 @@ const CustomerDetail = () => {
       paid: false
     };
 
-    const updatedCustomer = {
-      ...customer,
-      records: [...customer.records, newRecord]
-    };
-
-    setCustomer(updatedCustomer);
+    await addRecord(newRecord);
     setFormData({ date: "", type: "", acres: "", cost: "" });
     setIsDialogOpen(false);
-    
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
   };
 
-  const handleEditCost = (recordId: number, newCost: number) => {
-    const updatedCustomer = {
-      ...customer,
-      records: customer.records.map(record => 
-        record.id === recordId 
-          ? { ...record, cost: newCost, total: record.acres * newCost }
-          : record
-      )
-    };
-    setCustomer(updatedCustomer);
+  const handleEditCost = async (recordId: string, newCost: number) => {
+    const record = records.find(r => r.id === recordId);
+    if (record) {
+      await updateRecord(recordId, { 
+        cost: newCost, 
+        total: record.acres * newCost 
+      });
+    }
     setEditingRecord(null);
-    toast({
-      title: "Success",
-      description: "Cost updated successfully",
-    });
   };
 
-  const handleDiscountChange = (recordId: number, discount: number) => {
-    const updatedCustomer = {
-      ...customer,
-      records: customer.records.map(record => 
-        record.id === recordId 
-          ? { ...record, discount }
-          : record
-      )
-    };
-    setCustomer(updatedCustomer);
+  const handleDiscountChange = async (recordId: string, discount: number) => {
+    await updateRecord(recordId, { discount });
     setEditingDiscount(null);
-    toast({
-      title: "Success",
-      description: "Discount updated successfully",
-    });
   };
 
-  const togglePaymentStatus = (recordId: number) => {
-    const updatedCustomer = {
-      ...customer,
-      records: customer.records.map(record => 
-        record.id === recordId 
-          ? { ...record, paid: !record.paid }
-          : record
-      )
-    };
-    setCustomer(updatedCustomer);
-    toast({
-      title: "Success",
-      description: "Payment status updated",
-    });
+  const togglePaymentStatus = async (recordId: string) => {
+    const record = records.find(r => r.id === recordId);
+    if (record) {
+      await updateRecord(recordId, { paid: !record.paid });
+    }
   };
 
-  const deleteRecord = (recordId: number) => {
-    const updatedCustomer = {
-      ...customer,
-      records: customer.records.filter(record => record.id !== recordId)
-    };
-    setCustomer(updatedCustomer);
-    toast({
-      title: "Record Deleted",
-      description: "Service record has been deleted successfully",
-      variant: "destructive"
-    });
+  const handleDeleteRecord = async (recordId: string) => {
+    await deleteRecord(recordId);
   };
 
   const isOverdue = (dateString: string) => {
@@ -168,6 +99,26 @@ const CustomerDetail = () => {
     const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
     return daysDiff > 30; // Consider overdue if more than 30 days
   };
+
+  if (customersLoading || recordsLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <Link to="/customers">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Customers
+            </Button>
+          </Link>
+        </div>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!customer) {
     return (
@@ -189,10 +140,10 @@ const CustomerDetail = () => {
     );
   }
 
-  const totalAmount = customer.records.reduce((sum, record) => sum + record.total, 0);
-  const totalAcres = customer.records.reduce((sum, record) => sum + record.acres, 0);
-  const paidRecords = customer.records.filter(record => record.paid);
-  const activeRecords = customer.records.filter(record => !record.paid);
+  const totalAmount = records.reduce((sum, record) => sum + record.total, 0);
+  const totalAcres = records.reduce((sum, record) => sum + record.acres, 0);
+  const paidRecords = records.filter(record => record.paid);
+  const activeRecords = records.filter(record => !record.paid);
   const displayRecords = showPaidRecords ? paidRecords : activeRecords;
 
   return (
@@ -228,7 +179,7 @@ const CustomerDetail = () => {
             <CardTitle>Total Statistics</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p><strong>Total Records:</strong> {customer.records.length}</p>
+            <p><strong>Total Records:</strong> {records.length}</p>
             <p><strong>Total Acres:</strong> {totalAcres}</p>
             <p><strong>Total Amount:</strong> ${totalAmount.toLocaleString()}</p>
           </CardContent>
@@ -239,8 +190,8 @@ const CustomerDetail = () => {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            {customer.records.length > 0 ? (
-              <p>Last service: {customer.records[customer.records.length - 1].type} on {customer.records[customer.records.length - 1].date}</p>
+            {records.length > 0 ? (
+              <p>Last service: {records[0].type} on {records[0].date}</p>
             ) : (
               <p>No recent activity</p>
             )}
@@ -505,7 +456,7 @@ const CustomerDetail = () => {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteRecord(record.id)}>
+                                <AlertDialogAction onClick={() => handleDeleteRecord(record.id)}>
                                   Delete
                                 </AlertDialogAction>
                               </AlertDialogFooter>

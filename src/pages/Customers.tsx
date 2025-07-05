@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,39 +7,18 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-
-// Sample customer data
-const initialCustomers = [
-  { id: 1, name: "John Smith", email: "john@example.com", phone: "555-0123", location: "Farm Valley" },
-  { id: 2, name: "Mary Johnson", email: "mary@example.com", phone: "555-0124", location: "Green Acres" },
-  { id: 3, name: "Robert Brown", email: "robert@example.com", phone: "555-0125", location: "Sunset Farm" },
-];
+import { useCustomers } from "@/hooks/useCustomers";
 
 const Customers = () => {
-  const [customers, setCustomers] = useState(() => {
-    const saved = localStorage.getItem('customers_data');
-    return saved ? JSON.parse(saved) : initialCustomers;
-  });
-  const [paidCustomers, setPaidCustomers] = useState(() => {
-    const saved = localStorage.getItem('paid_customers');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: ""
   });
-  const { toast } = useToast();
 
-  // Save to localStorage whenever data changes
-  useEffect(() => {
-    localStorage.setItem('customers_data', JSON.stringify(customers));
-  }, [customers]);
-
-  useEffect(() => {
-    localStorage.setItem('paid_customers', JSON.stringify(paidCustomers));
-  }, [paidCustomers]);
+  // For now, paid customers functionality is disabled until we implement it properly
+  const paidCustomers: any[] = [];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -48,43 +27,39 @@ const Customers = () => {
     });
   };
 
-  const handleAddCustomer = (e: React.FormEvent) => {
+  const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name) {
-      toast({
-        title: "Error",
-        description: "Please enter customer name",
-        variant: "destructive"
-      });
       return;
     }
 
-    const newCustomer = {
-      id: Date.now(),
+    await addCustomer({
       name: formData.name,
       email: "",
       phone: "",
       location: ""
-    };
+    });
 
-    setCustomers([...customers, newCustomer]);
     setFormData({ name: "" });
     setIsDialogOpen(false);
-    
-    toast({
-      title: "Success",
-      description: "Customer added successfully",
-    });
   };
 
-  const deleteCustomer = (id: number) => {
-    setCustomers(customers.filter(customer => customer.id !== id));
-    toast({
-      title: "Customer Deleted",
-      description: "Customer has been deleted successfully",
-      variant: "destructive"
-    });
+  const handleDeleteCustomer = async (id: string) => {
+    await deleteCustomer(id);
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Customers</h1>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -181,7 +156,7 @@ const Customers = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => deleteCustomer(customer.id)}>
+                          <AlertDialogAction onClick={() => handleDeleteCustomer(customer.id)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>

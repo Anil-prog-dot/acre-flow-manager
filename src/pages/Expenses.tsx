@@ -192,9 +192,9 @@ const Expenses = () => {
                          </AlertDialogHeader>
                          <AlertDialogFooter>
                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                           <AlertDialogAction onClick={() => deleteExpense(expense.id)}>
-                             Delete
-                           </AlertDialogAction>
+                         <AlertDialogAction onClick={() => deleteExpense(expense.id)}>
+                           Delete
+                         </AlertDialogAction>
                          </AlertDialogFooter>
                        </AlertDialogContent>
                      </AlertDialog>
