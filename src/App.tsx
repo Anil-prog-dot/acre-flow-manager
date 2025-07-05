@@ -13,7 +13,6 @@ import CustomerDetail from "./pages/CustomerDetail";
 import Harvestor from "./pages/Harvestor";
 import Expenses from "./pages/Expenses";
 import Miscellaneous from "./pages/Miscellaneous";
-import PaidRecords from "./pages/PaidRecords";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,7 +40,6 @@ const App = () => (
                       <Route path="/harvestor" element={<Harvestor />} />
                       <Route path="/expenses" element={<Expenses />} />
                       <Route path="/miscellaneous" element={<Miscellaneous />} />
-                      <Route path="/paid-records" element={<PaidRecords />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </div>

@@ -13,6 +13,7 @@ import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 const Harvestor = () => {
   const { records, loading, addRecord, updateRecord, deleteRecord } = useHarvestorRecords();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [editingRecord, setEditingRecord] = useState<string | null>(null);
   const [editingDiscount, setEditingDiscount] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -92,6 +93,8 @@ const Harvestor = () => {
 
   const totalAmount = records.reduce((sum, record) => sum + record.total, 0);
   const totalAcres = records.reduce((sum, record) => sum + record.acres, 0);
+  const activeRecords = records;
+  const displayRecords = activeRecords;
 
   return (
     <div className="space-y-6">
@@ -214,10 +217,12 @@ const Harvestor = () => {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Harvestor Records</CardTitle>
-          <CardDescription>All harvestor operations</CardDescription>
-        </CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Harvestor Records</CardTitle>
+            <CardDescription>All harvestor operations</CardDescription>
+          </div>
+        </div>
         <CardContent>
           <div className="mobile-table-container">
             <Table className="mobile-table">
@@ -233,7 +238,7 @@ const Harvestor = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {records.map((record) => (
+                {displayRecords.map((record) => (
                   <TableRow key={record.id}>
                     <TableCell>{record.date}</TableCell>
                     <TableCell className="font-medium">{record.customer_name}</TableCell>
