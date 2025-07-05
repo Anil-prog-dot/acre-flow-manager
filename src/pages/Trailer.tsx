@@ -32,16 +32,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function Trailer() {
-  console.log("Trailer component is rendering");
-  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<TrailerRecord | null>(null);
   const [editingField, setEditingField] = useState<{ id: string; field: string } | null>(null);
   const [editValues, setEditValues] = useState<{ [key: string]: number }>({});
-  
-  console.log("About to call useTrailerRecords hook");
   const { trailerRecords, addTrailerRecord, updateTrailerRecord, deleteTrailerRecord, markPaid, isAdding } = useTrailerRecords();
-  console.log("useTrailerRecords hook completed", { trailerRecords });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
