@@ -25,14 +25,14 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ProtectedRoute>
-            <SidebarProvider defaultOpen={true}>
+            <SidebarProvider defaultOpen={false}>
               <div className="min-h-screen flex w-full">
                 <AppSidebar />
                 <main className="flex-1 flex flex-col">
-                  <header className="h-12 flex items-center border-b bg-background px-4">
-                    <SidebarTrigger />
+                  <header className="h-12 md:h-14 flex items-center border-b bg-background px-4 sticky top-0 z-40">
+                    <SidebarTrigger className="touch-target" />
                   </header>
-                  <div className="flex-1 p-6 bg-background">
+                  <div className="flex-1 p-4 md:p-6 bg-background overflow-auto">
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/customers" element={<Customers />} />

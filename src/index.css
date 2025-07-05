@@ -120,14 +120,54 @@ All colors MUST be HSL.
     }
   }
 
-  /* Touch-friendly buttons */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
+/* Mobile-first responsive design */
+.mobile-card {
+  @apply p-4 md:p-6;
+}
 
-  /* Smooth animations for mobile */
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
+.mobile-table {
+  @apply text-sm;
+}
+
+.mobile-button {
+  @apply text-sm px-3 py-2 md:text-base md:px-4 md:py-2;
+}
+
+.mobile-input {
+  @apply text-base; /* Prevents zoom on iOS */
+}
+
+/* Mobile-optimized grid layouts */
+.mobile-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.mobile-stats-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+/* Touch-friendly interactions */
+.touch-friendly {
+  @apply min-h-[44px] min-w-[44px] p-3;
+}
+
+/* Mobile table responsiveness */
+.mobile-table-container {
+  @apply overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0;
+}
+
+.mobile-table-wrapper {
+  @apply min-w-full;
+}
+
+/* Touch-friendly buttons */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Smooth animations for mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
 }
