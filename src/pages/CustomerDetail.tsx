@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Plus, Edit, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,45 +10,38 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
-// Sample customer data with details
-const customerData = {
-  1: {
-    name: "John Smith",
-    email: "john@example.com",
-    phone: "555-0123",
-    location: "Farm Valley",
-    records: [
-      { id: 1, date: "2024-01-15", type: "Plowing", acres: 25, cost: 150, total: 3750, discount: 0, paid: false },
-      { id: 2, date: "2024-02-20", type: "Seeding", acres: 25, cost: 120, total: 3000, discount: 100, paid: true },
-      { id: 3, date: "2024-03-10", type: "Fertilizing", acres: 25, cost: 80, total: 2000, discount: 0, paid: false },
-    ]
-  },
-  2: {
-    name: "Mary Johnson",
-    email: "mary@example.com",
-    phone: "555-0124",
-    location: "Green Acres",
-    records: [
-      { id: 1, date: "2024-01-20", type: "Harvesting", acres: 40, cost: 200, total: 8000, discount: 200, paid: true },
-      { id: 2, date: "2024-02-15", type: "Plowing", acres: 40, cost: 150, total: 6000, discount: 0, paid: false },
-    ]
-  },
-  3: {
-    name: "Robert Brown",
-    email: "robert@example.com",
-    phone: "555-0125",
-    location: "Sunset Farm",
-    records: [
-      { id: 1, date: "2024-01-10", type: "Seeding", acres: 30, cost: 120, total: 3600, discount: 50, paid: true },
-      { id: 2, date: "2024-02-25", type: "Irrigation", acres: 30, cost: 100, total: 3000, discount: 0, paid: false },
-      { id: 3, date: "2024-03-15", type: "Pest Control", acres: 30, cost: 90, total: 2700, discount: 100, paid: false },
-    ]
-  }
-};
-
 const CustomerDetail = () => {
   const { id } = useParams();
-  const [customer, setCustomer] = useState(customerData[Number(id) as keyof typeof customerData]);
+  const [customer, setCustomer] = useState<any>(null);
+  const [customers, setCustomers] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Load customers from localStorage
+    const savedCustomers = localStorage.getItem('customers_data');
+    const parsedCustomers = savedCustomers ? JSON.parse(savedCustomers) : [];
+    setCustomers(parsedCustomers);
+    
+    // Find the specific customer by ID
+    const foundCustomer = parsedCustomers.find((c: any) => c.id === Number(id));
+    if (foundCustomer) {
+      // Initialize records array if it doesn't exist
+      if (!foundCustomer.records) {
+        foundCustomer.records = [];
+      }
+      setCustomer(foundCustomer);
+    }
+  }, [id]);
+
+  // Save customer data whenever it changes
+  useEffect(() => {
+    if (customer && customers.length > 0) {
+      const updatedCustomers = customers.map(c => 
+        c.id === customer.id ? customer : c
+      );
+      setCustomers(updatedCustomers);
+      localStorage.setItem('customers_data', JSON.stringify(updatedCustomers));
+    }
+  }, [customer, customers]);
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<number | null>(null);
@@ -80,7 +73,7 @@ const CustomerDetail = () => {
     }
 
     const newRecord = {
-      id: customer.records.length + 1,
+      id: Date.now(),
       date: formData.date,
       type: formData.type,
       acres: Number(formData.acres),
