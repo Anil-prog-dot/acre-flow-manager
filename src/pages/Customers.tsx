@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Eye } from "lucide-react";
+import { Plus, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -17,6 +17,8 @@ const initialCustomers = [
 
 const Customers = () => {
   const [customers, setCustomers] = useState(initialCustomers);
+  const [paidCustomers, setPaidCustomers] = useState([]);
+  const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: ""
@@ -59,6 +61,15 @@ const Customers = () => {
     });
   };
 
+  const deleteCustomer = (id: number) => {
+    setCustomers(customers.filter(customer => customer.id !== id));
+    toast({
+      title: "Customer Deleted",
+      description: "Customer has been deleted successfully",
+      variant: "destructive"
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -67,7 +78,20 @@ const Customers = () => {
           <p className="text-muted-foreground">Manage your customer database</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex space-x-2">
+          <Button 
+            variant={!showPaidRecords ? "default" : "outline"}
+            onClick={() => setShowPaidRecords(false)}
+          >
+            Active Customers
+          </Button>
+          <Button 
+            variant={showPaidRecords ? "default" : "outline"}
+            onClick={() => setShowPaidRecords(true)}
+          >
+            Paid Records ({paidCustomers.length})
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90">
               <Plus className="mr-2 h-4 w-4" />
@@ -102,10 +126,11 @@ const Customers = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {customers.map((customer) => (
+        {(showPaidRecords ? paidCustomers : customers).map((customer) => (
           <Card key={customer.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
@@ -115,11 +140,22 @@ const Customers = () => {
                 >
                   {customer.name}
                 </Link>
-                <Link to={`/customers/${customer.id}`}>
-                  <Button variant="ghost" size="sm">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <div className="flex space-x-1">
+                  <Link to={`/customers/${customer.id}`}>
+                    <Button variant="ghost" size="sm">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  {!showPaidRecords && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteCustomer(customer.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               </CardTitle>
               <CardDescription>{customer.email}</CardDescription>
             </CardHeader>

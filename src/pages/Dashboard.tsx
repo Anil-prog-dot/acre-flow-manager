@@ -1,7 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, Tractor, Receipt } from "lucide-react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const Dashboard = () => {
+  // Sample data - in real app, this would come from your data sources
+  const harvestorRevenue = 15420;
+  const dieselExpenses = 1800;
+  const laborExpenses = 1350;
+  const generalExpenses = 400;
+  const miscellaneousExpenses = 690;
+  
+  const totalExpenses = dieselExpenses + laborExpenses + generalExpenses + miscellaneousExpenses;
+
   const stats = [
     {
       title: "Total Customers",
@@ -19,17 +29,28 @@ const Dashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: "$15,420",
+      value: `$${harvestorRevenue.toLocaleString()}`,
       description: "This month",
       icon: BarChart3,
       color: "text-success"
     },
     {
-      title: "Expenses",
-      value: "$3,240",
+      title: "Total Expenses",
+      value: `$${totalExpenses.toLocaleString()}`,
       description: "This month",
       icon: Receipt,
       color: "text-warning"
+    }
+  ];
+
+  const chartData = [
+    {
+      name: 'Revenue vs Expenses',
+      Revenue: harvestorRevenue,
+      Diesel: dieselExpenses,
+      Labor: laborExpenses,
+      Expenses: generalExpenses,
+      Miscellaneous: miscellaneousExpenses,
     }
   ];
 
@@ -58,6 +79,29 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue vs Expenses Breakdown</CardTitle>
+          <CardDescription>Monthly comparison of revenue and expense categories</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
+              <Legend />
+              <Bar dataKey="Revenue" fill="hsl(var(--success))" name="Revenue" />
+              <Bar dataKey="Diesel" fill="hsl(var(--warning))" name="Diesel" />
+              <Bar dataKey="Labor" fill="hsl(var(--accent))" name="Labor" />
+              <Bar dataKey="Expenses" fill="hsl(var(--destructive))" name="General Expenses" />
+              <Bar dataKey="Miscellaneous" fill="hsl(var(--primary))" name="Miscellaneous" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 };
