@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -170,15 +171,32 @@ const Miscellaneous = () => {
                       <TableCell>{record.date}</TableCell>
                       <TableCell>${record.amount.toLocaleString()}</TableCell>
                       <TableCell>{record.description}</TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteRecord(record.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </TableCell>
+                       <TableCell>
+                         <AlertDialog>
+                           <AlertDialogTrigger asChild>
+                             <Button
+                               size="sm"
+                               variant="destructive"
+                             >
+                               <Trash2 className="h-3 w-3" />
+                             </Button>
+                           </AlertDialogTrigger>
+                           <AlertDialogContent>
+                             <AlertDialogHeader>
+                               <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                               <AlertDialogDescription>
+                                 Are you sure you want to delete this miscellaneous record? This action cannot be undone.
+                               </AlertDialogDescription>
+                             </AlertDialogHeader>
+                             <AlertDialogFooter>
+                               <AlertDialogCancel>Cancel</AlertDialogCancel>
+                               <AlertDialogAction onClick={() => deleteRecord(record.id)}>
+                                 Delete
+                               </AlertDialogAction>
+                             </AlertDialogFooter>
+                           </AlertDialogContent>
+                         </AlertDialog>
+                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

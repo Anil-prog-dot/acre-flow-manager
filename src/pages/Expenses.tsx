@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -172,15 +173,32 @@ const Expenses = () => {
                   <TableCell className="font-medium">{expense.item}</TableCell>
                   <TableCell>{expense.date}</TableCell>
                   <TableCell>${expense.amount.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteExpense(expense.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </TableCell>
+                   <TableCell>
+                     <AlertDialog>
+                       <AlertDialogTrigger asChild>
+                         <Button
+                           size="sm"
+                           variant="destructive"
+                         >
+                           <Trash2 className="h-3 w-3" />
+                         </Button>
+                       </AlertDialogTrigger>
+                       <AlertDialogContent>
+                         <AlertDialogHeader>
+                           <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                           <AlertDialogDescription>
+                             Are you sure you want to delete the expense "{expense.item}"? This action cannot be undone.
+                           </AlertDialogDescription>
+                         </AlertDialogHeader>
+                         <AlertDialogFooter>
+                           <AlertDialogCancel>Cancel</AlertDialogCancel>
+                           <AlertDialogAction onClick={() => deleteExpense(expense.id)}>
+                             Delete
+                           </AlertDialogAction>
+                         </AlertDialogFooter>
+                       </AlertDialogContent>
+                     </AlertDialog>
+                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
