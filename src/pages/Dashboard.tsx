@@ -1,43 +1,64 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, Tractor, Receipt } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const Dashboard = () => {
-  // Sample data - in real app, this would come from your data sources
-  const harvestorRevenue = 15420;
-  const dieselExpenses = 1800;
-  const laborExpenses = 1350;
-  const generalExpenses = 400;
-  const miscellaneousExpenses = 690;
-  
-  const totalExpenses = dieselExpenses + laborExpenses + generalExpenses + miscellaneousExpenses;
+  const [customers, setCustomers] = useState([]);
+  const [harvestorData, setHarvestorData] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [miscellaneous, setMiscellaneous] = useState([]);
+
+  useEffect(() => {
+    // Load real data from localStorage
+    const savedCustomers = localStorage.getItem('customers_data');
+    const savedHarvestor = localStorage.getItem('harvestor_data');
+    const savedExpenses = localStorage.getItem('expenses_data');
+    const savedMiscellaneous = localStorage.getItem('miscellaneous_data');
+
+    setCustomers(savedCustomers ? JSON.parse(savedCustomers) : []);
+    setHarvestorData(savedHarvestor ? JSON.parse(savedHarvestor) : []);
+    setExpenses(savedExpenses ? JSON.parse(savedExpenses) : []);
+    setMiscellaneous(savedMiscellaneous ? JSON.parse(savedMiscellaneous) : []);
+  }, []);
+
+  // Calculate real statistics from stored data
+  const harvestorRevenue = harvestorData.reduce((sum, record) => sum + (record.finalAmount || record.total || 0), 0);
+  const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+  const miscellaneousTotal = miscellaneous.reduce((sum, record) => sum + (record.amount || 0), 0);
+  const totalHarvestorJobs = harvestorData.length;
+  const totalCustomers = customers.length;
+
+  // Calculate expenses by category from harvestor data
+  const dieselExpenses = harvestorData.reduce((sum, record) => sum + (record.diesel || 0), 0);
+  const laborExpenses = harvestorData.reduce((sum, record) => sum + (record.labor || 0), 0);
 
   const stats = [
     {
       title: "Total Customers",
-      value: "24",
+      value: totalCustomers.toString(),
       description: "Active customers",
       icon: Users,
       color: "text-primary"
     },
     {
       title: "Harvestor Jobs",
-      value: "12",
-      description: "This month",
+      value: totalHarvestorJobs.toString(),
+      description: "Total jobs",
       icon: Tractor,
       color: "text-accent"
     },
     {
       title: "Total Revenue",
       value: `$${harvestorRevenue.toLocaleString()}`,
-      description: "This month",
+      description: "From harvestor",
       icon: BarChart3,
       color: "text-success"
     },
     {
       title: "Total Expenses",
-      value: `$${totalExpenses.toLocaleString()}`,
-      description: "This month",
+      value: `$${(totalExpenses + miscellaneousTotal).toLocaleString()}`,
+      description: "All expenses",
       icon: Receipt,
       color: "text-warning"
     }
@@ -49,8 +70,8 @@ const Dashboard = () => {
       Revenue: harvestorRevenue,
       Diesel: dieselExpenses,
       Labor: laborExpenses,
-      Expenses: generalExpenses,
-      Miscellaneous: miscellaneousExpenses,
+      Expenses: totalExpenses,
+      Miscellaneous: miscellaneousTotal,
     }
   ];
 
