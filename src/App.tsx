@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./components/auth/AuthProvider";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AppSidebar } from "./components/AppSidebar";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
@@ -17,33 +19,37 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <SidebarProvider defaultOpen={true}>
-          <div className="min-h-screen flex w-full">
-            <AppSidebar />
-            <main className="flex-1 flex flex-col">
-              <header className="h-12 flex items-center border-b bg-background px-4">
-                <SidebarTrigger />
-              </header>
-              <div className="flex-1 p-6 bg-background">
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/customers" element={<Customers />} />
-                  <Route path="/customers/:id" element={<CustomerDetail />} />
-                  <Route path="/harvestor" element={<Harvestor />} />
-                  <Route path="/expenses" element={<Expenses />} />
-                  <Route path="/miscellaneous" element={<Miscellaneous />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ProtectedRoute>
+            <SidebarProvider defaultOpen={true}>
+              <div className="min-h-screen flex w-full">
+                <AppSidebar />
+                <main className="flex-1 flex flex-col">
+                  <header className="h-12 flex items-center border-b bg-background px-4">
+                    <SidebarTrigger />
+                  </header>
+                  <div className="flex-1 p-6 bg-background">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/customers" element={<Customers />} />
+                      <Route path="/customers/:id" element={<CustomerDetail />} />
+                      <Route path="/harvestor" element={<Harvestor />} />
+                      <Route path="/expenses" element={<Expenses />} />
+                      <Route path="/miscellaneous" element={<Miscellaneous />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </div>
+                </main>
               </div>
-            </main>
-          </div>
-        </SidebarProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+            </SidebarProvider>
+          </ProtectedRoute>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
