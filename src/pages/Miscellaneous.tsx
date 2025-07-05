@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Miscellaneous = () => {
@@ -51,6 +51,15 @@ const Miscellaneous = () => {
     toast({
       title: "Success",
       description: "Record added successfully",
+    });
+  };
+
+  const deleteRecord = (id: number) => {
+    setRecords(records.filter(record => record.id !== id));
+    toast({
+      title: "Record Deleted",
+      description: "Record has been deleted successfully",
+      variant: "destructive"
     });
   };
 
@@ -144,6 +153,7 @@ const Miscellaneous = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Description</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -152,6 +162,15 @@ const Miscellaneous = () => {
                       <TableCell>{record.date}</TableCell>
                       <TableCell>${record.amount.toLocaleString()}</TableCell>
                       <TableCell>{record.description}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => deleteRecord(record.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

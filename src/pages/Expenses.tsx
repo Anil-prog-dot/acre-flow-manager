@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { Plus, Edit, Check, X, Trash2, Receipt } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Receipt, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const initialExpenses = [
@@ -55,6 +55,15 @@ const Expenses = () => {
     toast({
       title: "Success",
       description: "Expense added successfully",
+    });
+  };
+
+  const deleteExpense = (id: number) => {
+    setExpenses(expenses.filter(expense => expense.id !== id));
+    toast({
+      title: "Expense Deleted",
+      description: "Expense has been deleted successfully",
+      variant: "destructive"
     });
   };
 
@@ -146,6 +155,7 @@ const Expenses = () => {
                 <TableHead>Item/Description</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -154,6 +164,15 @@ const Expenses = () => {
                   <TableCell className="font-medium">{expense.item}</TableCell>
                   <TableCell>{expense.date}</TableCell>
                   <TableCell>${expense.amount.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteExpense(expense.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

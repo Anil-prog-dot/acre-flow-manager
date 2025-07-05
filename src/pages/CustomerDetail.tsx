@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Plus, Edit, Check, X } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -49,6 +49,7 @@ const customerData = {
 const CustomerDetail = () => {
   const { id } = useParams();
   const [customer, setCustomer] = useState(customerData[Number(id) as keyof typeof customerData]);
+  const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<number | null>(null);
   const [editingDiscount, setEditingDiscount] = useState<number | null>(null);
@@ -154,6 +155,19 @@ const CustomerDetail = () => {
     });
   };
 
+  const deleteRecord = (recordId: number) => {
+    const updatedCustomer = {
+      ...customer,
+      records: customer.records.filter(record => record.id !== recordId)
+    };
+    setCustomer(updatedCustomer);
+    toast({
+      title: "Record Deleted",
+      description: "Service record has been deleted successfully",
+      variant: "destructive"
+    });
+  };
+
   const isOverdue = (dateString: string) => {
     const recordDate = new Date(dateString);
     const today = new Date();
@@ -183,6 +197,9 @@ const CustomerDetail = () => {
 
   const totalAmount = customer.records.reduce((sum, record) => sum + record.total, 0);
   const totalAcres = customer.records.reduce((sum, record) => sum + record.acres, 0);
+  const paidRecords = customer.records.filter(record => record.paid);
+  const activeRecords = customer.records.filter(record => !record.paid);
+  const displayRecords = showPaidRecords ? paidRecords : activeRecords;
 
   return (
     <div className="space-y-6">
@@ -241,79 +258,95 @@ const CustomerDetail = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Service Records</CardTitle>
-              <CardDescription>Complete history of services provided</CardDescription>
+              <CardTitle>{showPaidRecords ? "Paid Records" : "Active Service Records"}</CardTitle>
+              <CardDescription>{showPaidRecords ? "Completed payments" : "Complete history of services provided"}</CardDescription>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Record
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Record</DialogTitle>
-                  <DialogDescription>
-                    Add a new service record for {customer.name}
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleAddRecord} className="space-y-4">
-                  <div>
-                    <Label htmlFor="date">Date *</Label>
-                    <Input
-                      id="date"
-                      name="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="type">Service Type *</Label>
-                    <Input
-                      id="type"
-                      name="type"
-                      value={formData.type}
-                      onChange={handleInputChange}
-                      placeholder="e.g., Plowing, Seeding, Harvesting"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="acres">Number of Acres *</Label>
-                    <Input
-                      id="acres"
-                      name="acres"
-                      type="number"
-                      value={formData.acres}
-                      onChange={handleInputChange}
-                      placeholder="Enter number of acres"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="cost">Cost per Acre *</Label>
-                    <Input
-                      id="cost"
-                      name="cost"
-                      type="number"
-                      value={formData.cost}
-                      onChange={handleInputChange}
-                      placeholder="Enter cost per acre"
-                      required
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Cancel
+            <div className="flex space-x-2">
+              <Button 
+                variant={!showPaidRecords ? "default" : "outline"}
+                onClick={() => setShowPaidRecords(false)}
+              >
+                Active Records ({activeRecords.length})
+              </Button>
+              <Button 
+                variant={showPaidRecords ? "default" : "outline"}
+                onClick={() => setShowPaidRecords(true)}
+              >
+                Paid Records ({paidRecords.length})
+              </Button>
+              {!showPaidRecords && (
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Record
                     </Button>
-                    <Button type="submit">Add Record</Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Record</DialogTitle>
+                      <DialogDescription>
+                        Add a new service record for {customer.name}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAddRecord} className="space-y-4">
+                      <div>
+                        <Label htmlFor="date">Date *</Label>
+                        <Input
+                          id="date"
+                          name="date"
+                          type="date"
+                          value={formData.date}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="type">Service Type *</Label>
+                        <Input
+                          id="type"
+                          name="type"
+                          value={formData.type}
+                          onChange={handleInputChange}
+                          placeholder="e.g., Plowing, Seeding, Harvesting"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="acres">Number of Acres *</Label>
+                        <Input
+                          id="acres"
+                          name="acres"
+                          type="number"
+                          value={formData.acres}
+                          onChange={handleInputChange}
+                          placeholder="Enter number of acres"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cost">Cost per Acre *</Label>
+                        <Input
+                          id="cost"
+                          name="cost"
+                          type="number"
+                          value={formData.cost}
+                          onChange={handleInputChange}
+                          placeholder="Enter cost per acre"
+                          required
+                        />
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">Add Record</Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -328,11 +361,11 @@ const CustomerDetail = () => {
                 <TableHead>Discount</TableHead>
                 <TableHead>Final Amount</TableHead>
                 <TableHead>Payment Status</TableHead>
-                <TableHead>Actions</TableHead>
+                {!showPaidRecords && <TableHead>Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {customer.records.map((record) => {
+              {displayRecords.map((record) => {
                 const finalAmount = record.total - record.discount;
                 const paymentStatus = record.paid 
                   ? 'paid' 
@@ -444,21 +477,32 @@ const CustomerDetail = () => {
                     <TableCell>
                       <Badge 
                         variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
-                        className="cursor-pointer"
-                        onClick={() => togglePaymentStatus(record.id)}
+                        className={!showPaidRecords ? "cursor-pointer" : ""}
+                        onClick={!showPaidRecords ? () => togglePaymentStatus(record.id) : undefined}
                       >
                         {paymentStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant={record.paid ? "destructive" : "default"}
-                        onClick={() => togglePaymentStatus(record.id)}
-                      >
-                        {record.paid ? "Mark Unpaid" : "Mark Paid"}
-                      </Button>
-                    </TableCell>
+                    {!showPaidRecords && (
+                      <TableCell>
+                        <div className="flex space-x-1">
+                          <Button
+                            size="sm"
+                            variant={record.paid ? "destructive" : "default"}
+                            onClick={() => togglePaymentStatus(record.id)}
+                          >
+                            {record.paid ? "Mark Unpaid" : "Mark Paid"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => deleteRecord(record.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
