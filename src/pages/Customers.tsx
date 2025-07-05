@@ -19,10 +19,7 @@ const Customers = () => {
   const [customers, setCustomers] = useState(initialCustomers);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    location: ""
+    name: ""
   });
   const { toast } = useToast();
 
@@ -35,10 +32,10 @@ const Customers = () => {
 
   const handleAddCustomer = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) {
+    if (!formData.name) {
       toast({
         title: "Error",
-        description: "Please fill in required fields (Name and Email)",
+        description: "Please enter customer name",
         variant: "destructive"
       });
       return;
@@ -46,11 +43,14 @@ const Customers = () => {
 
     const newCustomer = {
       id: customers.length + 1,
-      ...formData
+      name: formData.name,
+      email: "",
+      phone: "",
+      location: ""
     };
 
     setCustomers([...customers, newCustomer]);
-    setFormData({ name: "", email: "", phone: "", location: "" });
+    setFormData({ name: "" });
     setIsDialogOpen(false);
     
     toast({
@@ -83,7 +83,7 @@ const Customers = () => {
             </DialogHeader>
             <form onSubmit={handleAddCustomer} className="space-y-4">
               <div>
-                <Label htmlFor="name">Name *</Label>
+                <Label htmlFor="name">Customer Name *</Label>
                 <Input
                   id="name"
                   name="name"
@@ -91,38 +91,6 @@ const Customers = () => {
                   onChange={handleInputChange}
                   placeholder="Enter customer name"
                   required
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter email address"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="Enter farm location"
                 />
               </div>
               <div className="flex justify-end space-x-2">

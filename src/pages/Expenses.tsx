@@ -1,7 +1,65 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Receipt } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Receipt, Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const initialExpenses = [
+  { id: 1, item: "Diesel", date: "2024-01-15", amount: 250 },
+  { id: 2, item: "Suresh", date: "2024-01-20", amount: 150 },
+];
 
 const Expenses = () => {
+  const [expenses, setExpenses] = useState(initialExpenses);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    item: "",
+    date: "",
+    amount: ""
+  });
+  const { toast } = useToast();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleAddExpense = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.item || !formData.date || !formData.amount) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newExpense = {
+      id: expenses.length + 1,
+      item: formData.item,
+      date: formData.date,
+      amount: Number(formData.amount)
+    };
+
+    setExpenses([...expenses, newExpense]);
+    setFormData({ item: "", date: "", amount: "" });
+    setIsDialogOpen(false);
+    
+    toast({
+      title: "Success",
+      description: "Expense added successfully",
+    });
+  };
+
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
   return (
     <div className="space-y-6">
       <div>
@@ -11,25 +69,98 @@ const Expenses = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Receipt className="mr-2 h-5 w-5" />
-            Expenses Management
-          </CardTitle>
-          <CardDescription>
-            This section will help you track all your business expenses
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="flex items-center">
+                <Receipt className="mr-2 h-5 w-5" />
+                Expense Records
+              </CardTitle>
+              <CardDescription>
+                Track all your business expenses
+              </CardDescription>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Expense
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Expense</DialogTitle>
+                  <DialogDescription>
+                    Enter the expense details below
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleAddExpense} className="space-y-4">
+                  <div>
+                    <Label htmlFor="item">Item/Description *</Label>
+                    <Input
+                      id="item"
+                      name="item"
+                      value={formData.item}
+                      onChange={handleInputChange}
+                      placeholder="Enter expense item"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="date">Date *</Label>
+                    <Input
+                      id="date"
+                      name="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="amount">Amount *</Label>
+                    <Input
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      placeholder="Enter amount"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Add Expense</Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            Expense tracking functionality will be implemented here. You'll be able to:
-          </p>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-            <li>• Add expense records</li>
-            <li>• Categorize expenses</li>
-            <li>• Track monthly/yearly totals</li>
-            <li>• Generate expense reports</li>
-            <li>• Upload receipts and documentation</li>
-          </ul>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Item/Description</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {expenses.map((expense) => (
+                <TableRow key={expense.id}>
+                  <TableCell className="font-medium">{expense.item}</TableCell>
+                  <TableCell>{expense.date}</TableCell>
+                  <TableCell>${expense.amount.toLocaleString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-lg font-semibold">Total Expenses: ${totalExpenses.toLocaleString()}</p>
+          </div>
         </CardContent>
       </Card>
     </div>

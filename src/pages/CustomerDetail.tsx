@@ -1,8 +1,13 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample customer data with details
 const customerData = {
@@ -42,7 +47,57 @@ const customerData = {
 
 const CustomerDetail = () => {
   const { id } = useParams();
-  const customer = customerData[Number(id) as keyof typeof customerData];
+  const [customer, setCustomer] = useState(customerData[Number(id) as keyof typeof customerData]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    date: "",
+    type: "",
+    acres: "",
+    cost: ""
+  });
+  const { toast } = useToast();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleAddRecord = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.date || !formData.type || !formData.acres || !formData.cost) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newRecord = {
+      id: customer.records.length + 1,
+      date: formData.date,
+      type: formData.type,
+      acres: Number(formData.acres),
+      cost: Number(formData.cost),
+      total: Number(formData.acres) * Number(formData.cost)
+    };
+
+    const updatedCustomer = {
+      ...customer,
+      records: [...customer.records, newRecord]
+    };
+
+    setCustomer(updatedCustomer);
+    setFormData({ date: "", type: "", acres: "", cost: "" });
+    setIsDialogOpen(false);
+    
+    toast({
+      title: "Success",
+      description: "Record added successfully",
+    });
+  };
 
   if (!customer) {
     return (
@@ -122,8 +177,82 @@ const CustomerDetail = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Service Records</CardTitle>
-          <CardDescription>Complete history of services provided</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Service Records</CardTitle>
+              <CardDescription>Complete history of services provided</CardDescription>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Record
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Record</DialogTitle>
+                  <DialogDescription>
+                    Add a new service record for {customer.name}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleAddRecord} className="space-y-4">
+                  <div>
+                    <Label htmlFor="date">Date *</Label>
+                    <Input
+                      id="date"
+                      name="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="type">Service Type *</Label>
+                    <Input
+                      id="type"
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Plowing, Seeding, Harvesting"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="acres">Number of Acres *</Label>
+                    <Input
+                      id="acres"
+                      name="acres"
+                      type="number"
+                      value={formData.acres}
+                      onChange={handleInputChange}
+                      placeholder="Enter number of acres"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="cost">Cost per Acre *</Label>
+                    <Input
+                      id="cost"
+                      name="cost"
+                      type="number"
+                      value={formData.cost}
+                      onChange={handleInputChange}
+                      placeholder="Enter cost per acre"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Add Record</Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
