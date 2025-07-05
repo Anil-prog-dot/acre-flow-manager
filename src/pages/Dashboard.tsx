@@ -1,37 +1,36 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, Tractor, Receipt } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { useCustomers } from "@/hooks/useCustomers";
+import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
+import { useExpenses } from "@/hooks/useExpenses";
+import { useMiscellaneous } from "@/hooks/useMiscellaneous";
 
 const Dashboard = () => {
-  const [customers, setCustomers] = useState([]);
-  const [harvestorData, setHarvestorData] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-  const [miscellaneous, setMiscellaneous] = useState([]);
+  const { customers, loading: customersLoading } = useCustomers();
+  const { records: harvestorData, loading: harvestorLoading } = useHarvestorRecords();
+  const { expenses, loading: expensesLoading } = useExpenses();
+  const { records: miscellaneous, loading: miscLoading } = useMiscellaneous();
 
-  useEffect(() => {
-    // Load real data from localStorage
-    const savedCustomers = localStorage.getItem('customers_data');
-    const savedHarvestor = localStorage.getItem('harvestor_data');
-    const savedExpenses = localStorage.getItem('expenses_data');
-    const savedMiscellaneous = localStorage.getItem('miscellaneous_data');
+  const loading = customersLoading || harvestorLoading || expensesLoading || miscLoading;
 
-    setCustomers(savedCustomers ? JSON.parse(savedCustomers) : []);
-    setHarvestorData(savedHarvestor ? JSON.parse(savedHarvestor) : []);
-    setExpenses(savedExpenses ? JSON.parse(savedExpenses) : []);
-    setMiscellaneous(savedMiscellaneous ? JSON.parse(savedMiscellaneous) : []);
-  }, []);
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Calculate real statistics from stored data
-  const harvestorRevenue = harvestorData.reduce((sum, record) => sum + (record.finalAmount || record.total || 0), 0);
+  const harvestorRevenue = harvestorData.reduce((sum, record) => sum + (record.total || 0), 0);
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const miscellaneousTotal = miscellaneous.reduce((sum, record) => sum + (record.amount || 0), 0);
   const totalHarvestorJobs = harvestorData.length;
   const totalCustomers = customers.length;
-
-  // Calculate expenses by category from harvestor data
-  const dieselExpenses = harvestorData.reduce((sum, record) => sum + (record.diesel || 0), 0);
-  const laborExpenses = harvestorData.reduce((sum, record) => sum + (record.labor || 0), 0);
 
   const stats = [
     {
@@ -68,8 +67,6 @@ const Dashboard = () => {
     {
       name: 'Revenue vs Expenses',
       Revenue: harvestorRevenue,
-      Diesel: dieselExpenses,
-      Labor: laborExpenses,
       Expenses: totalExpenses,
       Miscellaneous: miscellaneousTotal,
     }
@@ -115,8 +112,6 @@ const Dashboard = () => {
               <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
               <Legend />
               <Bar dataKey="Revenue" fill="hsl(var(--success))" name="Revenue" />
-              <Bar dataKey="Diesel" fill="hsl(var(--warning))" name="Diesel" />
-              <Bar dataKey="Labor" fill="hsl(var(--accent))" name="Labor" />
               <Bar dataKey="Expenses" fill="hsl(var(--destructive))" name="General Expenses" />
               <Bar dataKey="Miscellaneous" fill="hsl(var(--primary))" name="Miscellaneous" />
             </BarChart>
