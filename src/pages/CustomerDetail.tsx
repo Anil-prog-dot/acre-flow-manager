@@ -306,7 +306,7 @@ const CustomerDetail = () => {
                 <TableHead>Discount</TableHead>
                 <TableHead>Final Amount</TableHead>
                 <TableHead>Payment Status</TableHead>
-                {!showPaidRecords && <TableHead>Actions</TableHead>}
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -428,9 +428,9 @@ const CustomerDetail = () => {
                         {paymentStatus}
                       </Badge>
                     </TableCell>
-                    {!showPaidRecords && (
-                      <TableCell>
-                        <div className="flex space-x-1">
+                    <TableCell>
+                      <div className="flex space-x-1">
+                        {!showPaidRecords && (
                           <Button
                             size="sm"
                             variant={record.paid ? "destructive" : "default"}
@@ -438,33 +438,33 @@ const CustomerDetail = () => {
                           >
                             {record.paid ? "Mark Unpaid" : "Mark Paid"}
                           </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Service Record</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete this service record for {customer.name}? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteRecord(record.id)}>
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    )}
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Service Record</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this service record for {customer.name}? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteRecord(record.id)}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 );
               })}

@@ -1,4 +1,4 @@
-import { Home, Users, Tractor, Receipt, FileText, LogOut, User } from "lucide-react";
+import { Home, Users, Tractor, Receipt, FileText, LogOut, User, CheckCircle } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import { Button } from "./ui/button";
@@ -19,6 +19,7 @@ const items = [
   { title: "Harvestor", url: "/harvestor", icon: Tractor },
   { title: "Expenses", url: "/expenses", icon: Receipt },
   { title: "Miscellaneous", url: "/miscellaneous", icon: FileText },
+  { title: "Paid Records", url: "/paid-records", icon: CheckCircle },
 ];
 
 export function AppSidebar() {

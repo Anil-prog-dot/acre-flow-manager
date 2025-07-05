@@ -8,6 +8,7 @@ export interface HarvestorRecord {
   customer_name: string;
   acres: number;
   cost: number;
+  discount?: number;
   total: number;
 }
 
@@ -71,6 +72,29 @@ export const useHarvestorRecords = () => {
     }
   };
 
+  const updateRecord = async (id: string, updateData: Partial<Omit<HarvestorRecord, 'id'>>) => {
+    try {
+      const { error } = await supabase
+        .from('harvestor_records')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Harvestor record updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating harvestor record:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update harvestor record",
+        variant: "destructive"
+      });
+    }
+  };
+
   const deleteRecord = async (id: string) => {
     try {
       const { error } = await supabase
@@ -99,6 +123,7 @@ export const useHarvestorRecords = () => {
     records,
     loading,
     addRecord,
+    updateRecord,
     deleteRecord,
     refetch: fetchRecords
   };

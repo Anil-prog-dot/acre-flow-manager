@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Check, Trash2 } from "lucide-react";
+import { Plus, Check, Trash2, Edit, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -11,13 +11,16 @@ import { Badge } from "@/components/ui/badge";
 import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 
 const Harvestor = () => {
-  const { records, loading, addRecord, deleteRecord } = useHarvestorRecords();
+  const { records, loading, addRecord, updateRecord, deleteRecord } = useHarvestorRecords();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<string | null>(null);
+  const [editingDiscount, setEditingDiscount] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     date: "",
     customer_name: "",
     acres: "",
-    cost: ""
+    cost: "",
+    discount: ""
   });
 
   if (loading) {
@@ -47,18 +50,44 @@ const Harvestor = () => {
 
     const acres = parseFloat(formData.acres);
     const cost = parseFloat(formData.cost);
-    const total = acres * cost;
+    const discount = parseFloat(formData.discount) || 0;
+    const total = (acres * cost) - discount;
 
     await addRecord({
       date: formData.date,
       customer_name: formData.customer_name,
       acres: acres,
       cost: cost,
+      discount: discount,
       total: total
     });
 
-    setFormData({ date: "", customer_name: "", acres: "", cost: "" });
+    setFormData({ date: "", customer_name: "", acres: "", cost: "", discount: "" });
     setIsDialogOpen(false);
+  };
+
+  const handleEditCost = async (recordId: string, newCost: number) => {
+    const record = records.find(r => r.id === recordId);
+    if (record && updateRecord) {
+      const newTotal = (record.acres * newCost) - (record.discount || 0);
+      await updateRecord(recordId, { 
+        cost: newCost, 
+        total: newTotal 
+      });
+    }
+    setEditingRecord(null);
+  };
+
+  const handleDiscountChange = async (recordId: string, discount: number) => {
+    const record = records.find(r => r.id === recordId);
+    if (record && updateRecord) {
+      const newTotal = (record.acres * record.cost) - discount;
+      await updateRecord(recordId, { 
+        discount: discount,
+        total: newTotal 
+      });
+    }
+    setEditingDiscount(null);
   };
 
   const totalAmount = records.reduce((sum, record) => sum + record.total, 0);
@@ -135,6 +164,18 @@ const Harvestor = () => {
                   required
                 />
               </div>
+              <div>
+                <Label htmlFor="discount">Discount</Label>
+                <Input
+                  id="discount"
+                  name="discount"
+                  type="number"
+                  step="0.01"
+                  value={formData.discount}
+                  onChange={handleInputChange}
+                  placeholder="Enter discount amount"
+                />
+              </div>
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
@@ -186,6 +227,7 @@ const Harvestor = () => {
                   <TableHead>Customer Name</TableHead>
                   <TableHead>Acres</TableHead>
                   <TableHead>Cost/Acre</TableHead>
+                  <TableHead>Discount</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -196,7 +238,102 @@ const Harvestor = () => {
                     <TableCell>{record.date}</TableCell>
                     <TableCell className="font-medium">{record.customer_name}</TableCell>
                     <TableCell>{record.acres}</TableCell>
-                    <TableCell>${record.cost}</TableCell>
+                    <TableCell>
+                      {editingRecord === record.id ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            defaultValue={record.cost}
+                            className="w-20"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleEditCost(record.id, Number((e.target as HTMLInputElement).value));
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingRecord(null);
+                              }
+                            }}
+                          />
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => {
+                              const input = document.querySelector(`input[defaultValue="${record.cost}"]`) as HTMLInputElement;
+                              handleEditCost(record.id, Number(input.value));
+                            }}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingRecord(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span>${record.cost}</span>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingRecord(record.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingDiscount === record.id ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            defaultValue={record.discount || 0}
+                            className="w-20"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleDiscountChange(record.id, Number((e.target as HTMLInputElement).value));
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingDiscount(null);
+                              }
+                            }}
+                          />
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => {
+                              const input = document.querySelector(`input[defaultValue="${record.discount || 0}"]`) as HTMLInputElement;
+                              handleDiscountChange(record.id, Number(input.value));
+                            }}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingDiscount(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span>${record.discount || 0}</span>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingDiscount(record.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">${record.total.toLocaleString()}</TableCell>
                     <TableCell>
                       <AlertDialog>
