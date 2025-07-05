@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import CustomerDetail from "./pages/CustomerDetail";
 import Harvestor from "./pages/Harvestor";
+import Trailer from "./pages/Trailer";
 import Expenses from "./pages/Expenses";
 import Miscellaneous from "./pages/Miscellaneous";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const App = () => (
                       <Route path="/customers" element={<Customers />} />
                       <Route path="/customers/:id" element={<CustomerDetail />} />
                       <Route path="/harvestor" element={<Harvestor />} />
+                      <Route path="/trailer" element={<Trailer />} />
                       <Route path="/expenses" element={<Expenses />} />
                       <Route path="/miscellaneous" element={<Miscellaneous />} />
                       <Route path="*" element={<NotFound />} />

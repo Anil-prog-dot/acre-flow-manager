@@ -1,4 +1,4 @@
-import { Home, Users, Tractor, Receipt, FileText, LogOut, User } from "lucide-react";
+import { Home, Users, Tractor, Receipt, FileText, LogOut, User, Truck } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import { Button } from "./ui/button";
@@ -17,6 +17,7 @@ const items = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Customers", url: "/customers", icon: Users },
   { title: "Harvestor", url: "/harvestor", icon: Tractor },
+  { title: "Trailer", url: "/trailer", icon: Truck },
   { title: "Expenses", url: "/expenses", icon: Receipt },
   { title: "Miscellaneous", url: "/miscellaneous", icon: FileText },
 ];

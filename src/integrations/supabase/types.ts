@@ -182,6 +182,48 @@ export type Database = {
         }
         Relationships: []
       }
+      trailer_records: {
+        Row: {
+          cost: number
+          created_at: string
+          date: string
+          discount: number | null
+          id: string
+          name: string
+          no_of_trips: number
+          paid: boolean | null
+          total: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          cost: number
+          created_at?: string
+          date: string
+          discount?: number | null
+          id?: string
+          name: string
+          no_of_trips: number
+          paid?: boolean | null
+          total: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          date?: string
+          discount?: number | null
+          id?: string
+          name?: string
+          no_of_trips?: number
+          paid?: boolean | null
+          total?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
