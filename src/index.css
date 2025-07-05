@@ -8,44 +8,44 @@ All colors MUST be HSL.
 
 @layer base {
 :root {
-    --background: 150 20% 96%;
-    --foreground: 25 15% 15%;
+    --background: 120 25% 97%;
+    --foreground: 25 15% 20%;
 
-    --card: 150 30% 98%;
-    --card-foreground: 25 15% 15%;
+    --card: 120 30% 98%;
+    --card-foreground: 25 15% 20%;
 
-    --popover: 150 30% 98%;
-    --popover-foreground: 25 15% 15%;
+    --popover: 120 30% 98%;
+    --popover-foreground: 25 15% 20%;
 
-    --primary: 120 35% 35%;
+    --primary: 120 40% 60%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 200 25% 92%;
-    --secondary-foreground: 25 15% 15%;
+    --secondary: 200 30% 94%;
+    --secondary-foreground: 25 15% 20%;
 
-    --muted: 180 15% 94%;
-    --muted-foreground: 25 8% 45%;
+    --muted: 180 20% 96%;
+    --muted-foreground: 25 8% 50%;
 
-    --accent: 35 65% 55%;
+    --accent: 35 60% 70%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 60% 70%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 160 20% 88%;
-    --input: 160 20% 90%;
-    --ring: 120 35% 35%;
+    --border: 160 20% 90%;
+    --input: 160 25% 94%;
+    --ring: 120 40% 60%;
 
-    --success: 120 45% 45%;
+    --success: 120 50% 65%;
     --success-foreground: 0 0% 98%;
 
-    --warning: 35 95% 55%;
+    --warning: 35 70% 75%;
     --warning-foreground: 25 15% 15%;
 
-    --earth-green: 120 35% 35%;
-    --earth-brown: 25 45% 45%;
-    --earth-amber: 35 65% 55%;
-    --earth-light: 45 25% 96%;
+    --earth-green: 120 40% 60%;
+    --earth-brown: 25 50% 70%;
+    --earth-amber: 35 60% 70%;
+    --earth-light: 45 30% 98%;
 
     --radius: 0.5rem;
 

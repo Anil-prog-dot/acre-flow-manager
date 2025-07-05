@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
 // Sample customer data with details
@@ -17,9 +18,9 @@ const customerData = {
     phone: "555-0123",
     location: "Farm Valley",
     records: [
-      { id: 1, date: "2024-01-15", type: "Plowing", acres: 25, cost: 150, total: 3750 },
-      { id: 2, date: "2024-02-20", type: "Seeding", acres: 25, cost: 120, total: 3000 },
-      { id: 3, date: "2024-03-10", type: "Fertilizing", acres: 25, cost: 80, total: 2000 },
+      { id: 1, date: "2024-01-15", type: "Plowing", acres: 25, cost: 150, total: 3750, discount: 0, paid: false },
+      { id: 2, date: "2024-02-20", type: "Seeding", acres: 25, cost: 120, total: 3000, discount: 100, paid: true },
+      { id: 3, date: "2024-03-10", type: "Fertilizing", acres: 25, cost: 80, total: 2000, discount: 0, paid: false },
     ]
   },
   2: {
@@ -28,8 +29,8 @@ const customerData = {
     phone: "555-0124",
     location: "Green Acres",
     records: [
-      { id: 1, date: "2024-01-20", type: "Harvesting", acres: 40, cost: 200, total: 8000 },
-      { id: 2, date: "2024-02-15", type: "Plowing", acres: 40, cost: 150, total: 6000 },
+      { id: 1, date: "2024-01-20", type: "Harvesting", acres: 40, cost: 200, total: 8000, discount: 200, paid: true },
+      { id: 2, date: "2024-02-15", type: "Plowing", acres: 40, cost: 150, total: 6000, discount: 0, paid: false },
     ]
   },
   3: {
@@ -38,9 +39,9 @@ const customerData = {
     phone: "555-0125",
     location: "Sunset Farm",
     records: [
-      { id: 1, date: "2024-01-10", type: "Seeding", acres: 30, cost: 120, total: 3600 },
-      { id: 2, date: "2024-02-25", type: "Irrigation", acres: 30, cost: 100, total: 3000 },
-      { id: 3, date: "2024-03-15", type: "Pest Control", acres: 30, cost: 90, total: 2700 },
+      { id: 1, date: "2024-01-10", type: "Seeding", acres: 30, cost: 120, total: 3600, discount: 50, paid: true },
+      { id: 2, date: "2024-02-25", type: "Irrigation", acres: 30, cost: 100, total: 3000, discount: 0, paid: false },
+      { id: 3, date: "2024-03-15", type: "Pest Control", acres: 30, cost: 90, total: 2700, discount: 100, paid: false },
     ]
   }
 };
@@ -49,6 +50,8 @@ const CustomerDetail = () => {
   const { id } = useParams();
   const [customer, setCustomer] = useState(customerData[Number(id) as keyof typeof customerData]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<number | null>(null);
+  const [editingDiscount, setEditingDiscount] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     date: "",
     type: "",
@@ -81,7 +84,9 @@ const CustomerDetail = () => {
       type: formData.type,
       acres: Number(formData.acres),
       cost: Number(formData.cost),
-      total: Number(formData.acres) * Number(formData.cost)
+      total: Number(formData.acres) * Number(formData.cost),
+      discount: 0,
+      paid: false
     };
 
     const updatedCustomer = {
@@ -97,6 +102,63 @@ const CustomerDetail = () => {
       title: "Success",
       description: "Record added successfully",
     });
+  };
+
+  const handleEditCost = (recordId: number, newCost: number) => {
+    const updatedCustomer = {
+      ...customer,
+      records: customer.records.map(record => 
+        record.id === recordId 
+          ? { ...record, cost: newCost, total: record.acres * newCost }
+          : record
+      )
+    };
+    setCustomer(updatedCustomer);
+    setEditingRecord(null);
+    toast({
+      title: "Success",
+      description: "Cost updated successfully",
+    });
+  };
+
+  const handleDiscountChange = (recordId: number, discount: number) => {
+    const updatedCustomer = {
+      ...customer,
+      records: customer.records.map(record => 
+        record.id === recordId 
+          ? { ...record, discount }
+          : record
+      )
+    };
+    setCustomer(updatedCustomer);
+    setEditingDiscount(null);
+    toast({
+      title: "Success",
+      description: "Discount updated successfully",
+    });
+  };
+
+  const togglePaymentStatus = (recordId: number) => {
+    const updatedCustomer = {
+      ...customer,
+      records: customer.records.map(record => 
+        record.id === recordId 
+          ? { ...record, paid: !record.paid }
+          : record
+      )
+    };
+    setCustomer(updatedCustomer);
+    toast({
+      title: "Success",
+      description: "Payment status updated",
+    });
+  };
+
+  const isOverdue = (dateString: string) => {
+    const recordDate = new Date(dateString);
+    const today = new Date();
+    const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff > 30; // Consider overdue if more than 30 days
   };
 
   if (!customer) {
@@ -263,18 +325,143 @@ const CustomerDetail = () => {
                 <TableHead>No of Acres</TableHead>
                 <TableHead>Cost per Acre</TableHead>
                 <TableHead>Total Amount</TableHead>
+                <TableHead>Discount</TableHead>
+                <TableHead>Final Amount</TableHead>
+                <TableHead>Payment Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {customer.records.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell>{record.type}</TableCell>
-                  <TableCell>{record.acres}</TableCell>
-                  <TableCell>${record.cost}</TableCell>
-                  <TableCell className="font-medium">${record.total.toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
+              {customer.records.map((record) => {
+                const finalAmount = record.total - record.discount;
+                const paymentStatus = record.paid 
+                  ? 'paid' 
+                  : isOverdue(record.date) 
+                    ? 'overdue' 
+                    : 'pending';
+                
+                return (
+                  <TableRow key={record.id}>
+                    <TableCell>{record.date}</TableCell>
+                    <TableCell>{record.type}</TableCell>
+                    <TableCell>{record.acres}</TableCell>
+                    <TableCell>
+                      {editingRecord === record.id ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            defaultValue={record.cost}
+                            className="w-20"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleEditCost(record.id, Number((e.target as HTMLInputElement).value));
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingRecord(null);
+                              }
+                            }}
+                          />
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => {
+                              const input = document.querySelector(`input[defaultValue="${record.cost}"]`) as HTMLInputElement;
+                              handleEditCost(record.id, Number(input.value));
+                            }}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingRecord(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span>${record.cost}</span>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingRecord(record.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">${record.total.toLocaleString()}</TableCell>
+                    <TableCell>
+                      {editingDiscount === record.id ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            defaultValue={record.discount}
+                            className="w-20"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleDiscountChange(record.id, Number((e.target as HTMLInputElement).value));
+                              }
+                              if (e.key === 'Escape') {
+                                setEditingDiscount(null);
+                              }
+                            }}
+                          />
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => {
+                              const input = document.querySelector(`input[defaultValue="${record.discount}"]`) as HTMLInputElement;
+                              handleDiscountChange(record.id, Number(input.value));
+                            }}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingDiscount(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span>${record.discount}</span>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => setEditingDiscount(record.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-bold">${finalAmount.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
+                        className="cursor-pointer"
+                        onClick={() => togglePaymentStatus(record.id)}
+                      >
+                        {paymentStatus}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant={record.paid ? "destructive" : "default"}
+                        onClick={() => togglePaymentStatus(record.id)}
+                      >
+                        {record.paid ? "Mark Unpaid" : "Mark Paid"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
