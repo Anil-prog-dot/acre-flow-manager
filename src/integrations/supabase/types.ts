@@ -125,6 +125,7 @@ export type Database = {
           date: string
           discount: number | null
           id: string
+          paid: boolean | null
           total: number
           updated_at: string
         }
@@ -136,6 +137,7 @@ export type Database = {
           date: string
           discount?: number | null
           id?: string
+          paid?: boolean | null
           total: number
           updated_at?: string
         }
@@ -147,6 +149,7 @@ export type Database = {
           date?: string
           discount?: number | null
           id?: string
+          paid?: boolean | null
           total?: number
           updated_at?: string
         }

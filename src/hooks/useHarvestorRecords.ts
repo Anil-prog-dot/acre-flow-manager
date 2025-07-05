@@ -10,6 +10,7 @@ export interface HarvestorRecord {
   cost: number;
   discount?: number;
   total: number;
+  paid?: boolean;
 }
 
 export const useHarvestorRecords = () => {

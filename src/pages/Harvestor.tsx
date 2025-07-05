@@ -24,6 +24,13 @@ const Harvestor = () => {
     discount: ""
   });
 
+  const togglePaymentStatus = async (recordId: string) => {
+    const record = records.find(r => r.id === recordId);
+    if (record && updateRecord) {
+      await updateRecord(recordId, { paid: !record.paid });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -60,7 +67,8 @@ const Harvestor = () => {
       acres: acres,
       cost: cost,
       discount: discount,
-      total: total
+      total: total,
+      paid: false
     });
 
     setFormData({ date: "", customer_name: "", acres: "", cost: "", discount: "" });
@@ -93,101 +101,15 @@ const Harvestor = () => {
 
   const totalAmount = records.reduce((sum, record) => sum + record.total, 0);
   const totalAcres = records.reduce((sum, record) => sum + record.acres, 0);
-  const activeRecords = records;
-  const displayRecords = activeRecords;
+  const paidRecords = records.filter(record => record.paid);
+  const activeRecords = records.filter(record => !record.paid);
+  const displayRecords = showPaidRecords ? paidRecords : activeRecords;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Harvestor</h1>
-          <p className="text-muted-foreground">Manage harvestor operations and payments</p>
-        </div>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Record
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Harvestor Record</DialogTitle>
-              <DialogDescription>
-                Enter the harvestor operation details
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleAddRecord} className="space-y-4">
-              <div>
-                <Label htmlFor="date">Date *</Label>
-                <Input
-                  id="date"
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="customer_name">Customer Name *</Label>
-                <Input
-                  id="customer_name"
-                  name="customer_name"
-                  value={formData.customer_name}
-                  onChange={handleInputChange}
-                  placeholder="Enter customer name"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="acres">No of Acres *</Label>
-                <Input
-                  id="acres"
-                  name="acres"
-                  type="number"
-                  step="0.1"
-                  value={formData.acres}
-                  onChange={handleInputChange}
-                  placeholder="Enter number of acres"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="cost">Cost per Acre *</Label>
-                <Input
-                  id="cost"
-                  name="cost"
-                  type="number"
-                  step="0.01"
-                  value={formData.cost}
-                  onChange={handleInputChange}
-                  placeholder="Enter cost per acre"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="discount">Discount</Label>
-                <Input
-                  id="discount"
-                  name="discount"
-                  type="number"
-                  step="0.01"
-                  value={formData.discount}
-                  onChange={handleInputChange}
-                  placeholder="Enter discount amount"
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">Add Record</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Harvestor</h1>
+        <p className="text-muted-foreground">Manage harvestor operations and payments</p>
       </div>
 
       <div className="mobile-stats-grid">
@@ -217,12 +139,114 @@ const Harvestor = () => {
       </div>
 
       <Card>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Harvestor Records</CardTitle>
-            <CardDescription>All harvestor operations</CardDescription>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>{showPaidRecords ? "Paid Records" : "Active Harvestor Records"}</CardTitle>
+              <CardDescription>{showPaidRecords ? "Completed payments" : "All harvestor operations"}</CardDescription>
+            </div>
+            <div className="flex space-x-2">
+              <Button 
+                variant={!showPaidRecords ? "default" : "outline"}
+                onClick={() => setShowPaidRecords(false)}
+              >
+                Active Records ({activeRecords.length})
+              </Button>
+              <Button 
+                variant={showPaidRecords ? "default" : "outline"}
+                onClick={() => setShowPaidRecords(true)}
+              >
+                Paid Records ({paidRecords.length})
+              </Button>
+              {!showPaidRecords && (
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-primary hover:bg-primary/90">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Record
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Harvestor Record</DialogTitle>
+                      <DialogDescription>
+                        Enter the harvestor operation details
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAddRecord} className="space-y-4">
+                      <div>
+                        <Label htmlFor="date">Date *</Label>
+                        <Input
+                          id="date"
+                          name="date"
+                          type="date"
+                          value={formData.date}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="customer_name">Customer Name *</Label>
+                        <Input
+                          id="customer_name"
+                          name="customer_name"
+                          value={formData.customer_name}
+                          onChange={handleInputChange}
+                          placeholder="Enter customer name"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="acres">No of Acres *</Label>
+                        <Input
+                          id="acres"
+                          name="acres"
+                          type="number"
+                          step="0.1"
+                          value={formData.acres}
+                          onChange={handleInputChange}
+                          placeholder="Enter number of acres"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cost">Cost per Acre *</Label>
+                        <Input
+                          id="cost"
+                          name="cost"
+                          type="number"
+                          step="0.01"
+                          value={formData.cost}
+                          onChange={handleInputChange}
+                          placeholder="Enter cost per acre"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="discount">Discount</Label>
+                        <Input
+                          id="discount"
+                          name="discount"
+                          type="number"
+                          step="0.01"
+                          value={formData.discount}
+                          onChange={handleInputChange}
+                          placeholder="Enter discount amount"
+                        />
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">Add Record</Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
           </div>
-        </div>
+        </CardHeader>
         <CardContent>
           <div className="mobile-table-container">
             <Table className="mobile-table">
@@ -234,6 +258,7 @@ const Harvestor = () => {
                   <TableHead>Cost/Acre</TableHead>
                   <TableHead>Discount</TableHead>
                   <TableHead>Total</TableHead>
+                  <TableHead>Payment Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -341,31 +366,51 @@ const Harvestor = () => {
                     </TableCell>
                     <TableCell className="font-medium">${record.total.toLocaleString()}</TableCell>
                     <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                      <Badge 
+                        variant={record.paid ? 'default' : 'secondary'}
+                        className={!showPaidRecords ? "cursor-pointer" : ""}
+                        onClick={!showPaidRecords ? () => togglePaymentStatus(record.id) : undefined}
+                      >
+                        {record.paid ? 'paid' : 'pending'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-1">
+                        {!showPaidRecords && (
                           <Button
                             size="sm"
-                            variant="destructive"
-                            className="mobile-button"
+                            variant={record.paid ? "destructive" : "default"}
+                            onClick={() => togglePaymentStatus(record.id)}
                           >
-                            <Trash2 className="h-3 w-3" />
+                            {record.paid ? "Mark Unpaid" : "Mark Paid"}
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Record</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete this harvestor record for {record.customer_name}? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => deleteRecord(record.id)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="mobile-button"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this harvestor record for {record.customer_name}? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteRecord(record.id)}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
