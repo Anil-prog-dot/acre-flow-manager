@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -8,25 +8,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, Plus, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useMiscellaneous } from "@/hooks/useMiscellaneous";
 
 const Miscellaneous = () => {
-  const [records, setRecords] = useState<Array<{id: number, date: string, amount: number, description: string}>>(() => {
-    const saved = localStorage.getItem('miscellaneous_data');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { records, loading, addRecord, deleteRecord } = useMiscellaneous();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     date: "",
     amount: "",
     description: ""
   });
-  const { toast } = useToast();
 
-  // Save to localStorage whenever data changes
-  useEffect(() => {
-    localStorage.setItem('miscellaneous_data', JSON.stringify(records));
-  }, [records]);
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Miscellaneous</h1>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -35,41 +37,20 @@ const Miscellaneous = () => {
     });
   };
 
-  const handleAddRecord = (e: React.FormEvent) => {
+  const handleAddRecord = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.date || !formData.amount || !formData.description) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive"
-      });
       return;
     }
 
-    const newRecord = {
-      id: Date.now(),
+    await addRecord({
       date: formData.date,
       amount: Number(formData.amount),
       description: formData.description
-    };
+    });
 
-    setRecords([...records, newRecord]);
     setFormData({ date: "", amount: "", description: "" });
     setIsDialogOpen(false);
-    
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
-  };
-
-  const deleteRecord = (id: number) => {
-    setRecords(records.filter(record => record.id !== id));
-    toast({
-      title: "Record Deleted",
-      description: "Record has been deleted successfully",
-      variant: "destructive"
-    });
   };
 
   const totalAmount = records.reduce((sum, record) => sum + record.amount, 0);
@@ -156,51 +137,54 @@ const Miscellaneous = () => {
         <CardContent>
           {records.length > 0 ? (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {records.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell>{record.date}</TableCell>
-                      <TableCell>${record.amount.toLocaleString()}</TableCell>
-                      <TableCell>{record.description}</TableCell>
-                       <TableCell>
-                         <AlertDialog>
-                           <AlertDialogTrigger asChild>
-                             <Button
-                               size="sm"
-                               variant="destructive"
-                             >
-                               <Trash2 className="h-3 w-3" />
-                             </Button>
-                           </AlertDialogTrigger>
-                           <AlertDialogContent>
-                             <AlertDialogHeader>
-                               <AlertDialogTitle>Delete Record</AlertDialogTitle>
-                               <AlertDialogDescription>
-                                 Are you sure you want to delete this miscellaneous record? This action cannot be undone.
-                               </AlertDialogDescription>
-                             </AlertDialogHeader>
-                             <AlertDialogFooter>
-                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                         <AlertDialogAction onClick={() => deleteRecord(record.id)}>
-                           Delete
-                         </AlertDialogAction>
-                             </AlertDialogFooter>
-                           </AlertDialogContent>
-                         </AlertDialog>
-                       </TableCell>
+              <div className="mobile-table-container">
+                <Table className="mobile-table">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {records.map((record) => (
+                      <TableRow key={record.id}>
+                        <TableCell>{record.date}</TableCell>
+                        <TableCell>${record.amount.toLocaleString()}</TableCell>
+                        <TableCell>{record.description}</TableCell>
+                         <TableCell>
+                           <AlertDialog>
+                             <AlertDialogTrigger asChild>
+                               <Button
+                                 size="sm"
+                                 variant="destructive"
+                                 className="mobile-button"
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </AlertDialogTrigger>
+                             <AlertDialogContent>
+                               <AlertDialogHeader>
+                                 <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                                 <AlertDialogDescription>
+                                   Are you sure you want to delete this miscellaneous record? This action cannot be undone.
+                                 </AlertDialogDescription>
+                               </AlertDialogHeader>
+                               <AlertDialogFooter>
+                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
+                           <AlertDialogAction onClick={() => deleteRecord(record.id)}>
+                             Delete
+                           </AlertDialogAction>
+                               </AlertDialogFooter>
+                             </AlertDialogContent>
+                           </AlertDialog>
+                         </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               <div className="mt-4 pt-4 border-t">
                 <p className="text-lg font-semibold">Total Amount: ${totalAmount.toLocaleString()}</p>
               </div>
