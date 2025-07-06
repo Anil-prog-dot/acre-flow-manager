@@ -197,7 +197,7 @@ const LoginForm: React.FC = () => {
           <div className="mt-6 p-4 bg-muted/50 rounded-lg">
             <p className="text-sm font-medium text-muted-foreground mb-2">Admin Access:</p>
             <div className="space-y-1 text-xs text-muted-foreground">
-              <p>Sign up with <strong>admin@farm.com</strong> to get admin privileges</p>
+              <p>Sign up with <strong>anil.jarupula@icloud.com</strong> to get admin privileges</p>
               <p>All other emails will be regular users</p>
             </div>
           </div>
