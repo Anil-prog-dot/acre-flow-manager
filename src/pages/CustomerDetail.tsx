@@ -12,11 +12,13 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useCustomerRecords } from "@/hooks/useCustomerRecords";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const CustomerDetail = () => {
   const { id } = useParams();
   const { customers, loading: customersLoading } = useCustomers();
   const { records, loading: recordsLoading, addRecord, updateRecord, deleteRecord } = useCustomerRecords(id);
+  const { isAdmin } = useAuth();
   const [customer, setCustomer] = useState<any>(null);
 
   useEffect(() => {
@@ -439,30 +441,32 @@ const CustomerDetail = () => {
                             {record.paid ? "Mark Unpaid" : "Mark Paid"}
                           </Button>
                         )}
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Service Record</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete this service record for {customer.name}? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteRecord(record.id)}>
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        {isAdmin && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Service Record</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete this service record for {customer.name}? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteRecord(record.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
