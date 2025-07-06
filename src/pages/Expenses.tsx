@@ -8,9 +8,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Expenses = () => {
   const { expenses, loading, addExpense, deleteExpense } = useExpenses();
+  const { isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     description: "",
@@ -151,31 +153,33 @@ const Expenses = () => {
                     <TableCell>{expense.date}</TableCell>
                     <TableCell>${expense.amount.toLocaleString()}</TableCell>
                      <TableCell>
-                       <AlertDialog>
-                         <AlertDialogTrigger asChild>
-                           <Button
-                             size="sm"
-                             variant="destructive"
-                             className="mobile-button"
-                           >
-                             <Trash2 className="h-3 w-3" />
-                           </Button>
-                         </AlertDialogTrigger>
-                         <AlertDialogContent>
-                           <AlertDialogHeader>
-                             <AlertDialogTitle>Delete Expense</AlertDialogTitle>
-                             <AlertDialogDescription>
-                               Are you sure you want to delete the expense "{expense.description}"? This action cannot be undone.
-                             </AlertDialogDescription>
-                           </AlertDialogHeader>
-                           <AlertDialogFooter>
-                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                         <AlertDialogAction onClick={() => deleteExpense(expense.id)}>
-                           Delete
-                         </AlertDialogAction>
-                           </AlertDialogFooter>
-                         </AlertDialogContent>
-                       </AlertDialog>
+                       {isAdmin && (
+                         <AlertDialog>
+                           <AlertDialogTrigger asChild>
+                             <Button
+                               size="sm"
+                               variant="destructive"
+                               className="mobile-button"
+                             >
+                               <Trash2 className="h-3 w-3" />
+                             </Button>
+                           </AlertDialogTrigger>
+                           <AlertDialogContent>
+                             <AlertDialogHeader>
+                               <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                               <AlertDialogDescription>
+                                 Are you sure you want to delete the expense "{expense.description}"? This action cannot be undone.
+                               </AlertDialogDescription>
+                             </AlertDialogHeader>
+                             <AlertDialogFooter>
+                               <AlertDialogCancel>Cancel</AlertDialogCancel>
+                           <AlertDialogAction onClick={() => deleteExpense(expense.id)}>
+                             Delete
+                           </AlertDialogAction>
+                             </AlertDialogFooter>
+                           </AlertDialogContent>
+                         </AlertDialog>
+                       )}
                      </TableCell>
                   </TableRow>
                 ))}

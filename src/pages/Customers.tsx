@@ -8,9 +8,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCustomers } from "@/hooks/useCustomers";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Customers = () => {
   const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
+  const { isAdmin } = useAuth();
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -137,7 +139,7 @@ const Customers = () => {
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
-                  {!showPaidRecords && (
+                  {!showPaidRecords && isAdmin && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button

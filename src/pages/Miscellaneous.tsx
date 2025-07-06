@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, Plus, Trash2 } from "lucide-react";
 import { useMiscellaneous } from "@/hooks/useMiscellaneous";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Miscellaneous = () => {
   const { records, loading, addRecord, deleteRecord } = useMiscellaneous();
+  const { isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     date: "",
@@ -154,31 +156,33 @@ const Miscellaneous = () => {
                         <TableCell>${record.amount.toLocaleString()}</TableCell>
                         <TableCell>{record.description}</TableCell>
                          <TableCell>
-                           <AlertDialog>
-                             <AlertDialogTrigger asChild>
-                               <Button
-                                 size="sm"
-                                 variant="destructive"
-                                 className="mobile-button"
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
-                             </AlertDialogTrigger>
-                             <AlertDialogContent>
-                               <AlertDialogHeader>
-                                 <AlertDialogTitle>Delete Record</AlertDialogTitle>
-                                 <AlertDialogDescription>
-                                   Are you sure you want to delete this miscellaneous record? This action cannot be undone.
-                                 </AlertDialogDescription>
-                               </AlertDialogHeader>
-                               <AlertDialogFooter>
-                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                           <AlertDialogAction onClick={() => deleteRecord(record.id)}>
-                             Delete
-                           </AlertDialogAction>
-                               </AlertDialogFooter>
-                             </AlertDialogContent>
-                           </AlertDialog>
+                           {isAdmin && (
+                             <AlertDialog>
+                               <AlertDialogTrigger asChild>
+                                 <Button
+                                   size="sm"
+                                   variant="destructive"
+                                   className="mobile-button"
+                                 >
+                                   <Trash2 className="h-3 w-3" />
+                                 </Button>
+                               </AlertDialogTrigger>
+                               <AlertDialogContent>
+                                 <AlertDialogHeader>
+                                   <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                                   <AlertDialogDescription>
+                                     Are you sure you want to delete this miscellaneous record? This action cannot be undone.
+                                   </AlertDialogDescription>
+                                 </AlertDialogHeader>
+                                 <AlertDialogFooter>
+                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
+                             <AlertDialogAction onClick={() => deleteRecord(record.id)}>
+                               Delete
+                             </AlertDialogAction>
+                                 </AlertDialogFooter>
+                               </AlertDialogContent>
+                             </AlertDialog>
+                           )}
                          </TableCell>
                       </TableRow>
                     ))}
