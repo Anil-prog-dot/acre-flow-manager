@@ -24,7 +24,7 @@ const items = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const currentPath = location.pathname;
 
   const isActive = (path: string) => {
@@ -48,8 +48,8 @@ export function AppSidebar() {
               <User className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-sidebar-foreground">{user?.name}</p>
-              <p className="text-xs text-sidebar-foreground/70 capitalize">{user?.role}</p>
+              <p className="text-sm font-medium text-sidebar-foreground">{profile?.full_name || user?.email}</p>
+              <p className="text-xs text-sidebar-foreground/70 capitalize">{profile?.role || 'user'}</p>
             </div>
           </div>
         </div>

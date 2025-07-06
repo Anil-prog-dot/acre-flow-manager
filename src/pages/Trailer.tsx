@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Edit2, Trash2, Check, X } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +38,7 @@ export default function Trailer() {
   const [editingField, setEditingField] = useState<{ id: string; field: string } | null>(null);
   const [editValues, setEditValues] = useState<{ [key: string]: number }>({});
   const { trailerRecords, addTrailerRecord, updateTrailerRecord, deleteTrailerRecord, markPaid, isAdding } = useTrailerRecords();
+  const { isAdmin } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -226,6 +228,10 @@ export default function Trailer() {
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) => date > new Date()}
+                              defaultMonth={new Date(2020, 0)}
+                              captionLayout="dropdown-buttons"
+                              fromYear={2000}
+                              toYear={new Date().getFullYear()}
                               initialFocus
                               className="pointer-events-auto"
                             />
@@ -394,13 +400,15 @@ export default function Trailer() {
                           >
                             Mark Paid
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteTrailerRecord(record.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {isAdmin && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteTrailerRecord(record.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -461,13 +469,15 @@ export default function Trailer() {
                           >
                             Mark Unpaid
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteTrailerRecord(record.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {isAdmin && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteTrailerRecord(record.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
