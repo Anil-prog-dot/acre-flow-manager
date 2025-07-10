@@ -27,7 +27,7 @@ const formSchema = z.object({
   type: z.string().min(1, "Type is required"),
   no_of_trips: z.number().min(1, "Number of trips must be at least 1"),
   cost: z.number().min(0, "Cost must be non-negative"),
-  discount: z.number().min(0, "Discount must be non-negative").default(0),
+  discount: z.number().min(0, "Discount must be non-negative"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -48,7 +48,7 @@ export default function Trailer() {
       type: "",
       no_of_trips: undefined,
       cost: undefined,
-      discount: 0,
+      discount: undefined,
     },
   });
 
@@ -56,7 +56,7 @@ export default function Trailer() {
   const paidRecords = trailerRecords.filter(record => record.paid);
 
   const onSubmit = (data: FormData) => {
-    const total = data.no_of_trips * data.cost - data.discount;
+    const total = data.no_of_trips * data.cost - (data.discount || 0);
     
     const recordData = {
       date: format(data.date, "yyyy-MM-dd"),
@@ -64,7 +64,7 @@ export default function Trailer() {
       type: data.type,
       no_of_trips: data.no_of_trips,
       cost: data.cost,
-      discount: data.discount,
+      discount: data.discount || 0,
       total,
       paid: false,
     };
@@ -328,8 +328,9 @@ export default function Trailer() {
                             type="number" 
                             min="0"
                             step="0.01"
+                            placeholder="Enter discount amount"
                             {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
                           />
                         </FormControl>
                         <FormMessage />
