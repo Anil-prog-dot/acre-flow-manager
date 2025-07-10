@@ -132,7 +132,7 @@ const Harvestor = () => {
             <CardTitle>Total Amount</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-2xl font-bold">${totalAmount.toLocaleString()}</div>
+            <div className="text-xl md:text-2xl font-bold">₹{totalAmount.toLocaleString()}</div>
             <p className="text-sm text-muted-foreground">
               All operations
             </p>
@@ -307,7 +307,7 @@ const Harvestor = () => {
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          <span>${record.cost}</span>
+                          <span>₹{record.cost}</span>
                           <Button 
                             size="sm" 
                             variant="ghost"
@@ -355,7 +355,7 @@ const Harvestor = () => {
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          <span>${record.discount || 0}</span>
+                          <span>₹{record.discount || 0}</span>
                           <Button 
                             size="sm" 
                             variant="ghost"
@@ -366,7 +366,7 @@ const Harvestor = () => {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">${record.total.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge 
                         variant={record.paid ? 'default' : 'secondary'}

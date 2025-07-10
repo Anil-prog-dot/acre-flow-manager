@@ -151,7 +151,7 @@ const Expenses = () => {
                   <TableRow key={expense.id}>
                     <TableCell className="font-medium">{expense.description}</TableCell>
                     <TableCell>{expense.date}</TableCell>
-                    <TableCell>${expense.amount.toLocaleString()}</TableCell>
+                    <TableCell>₹{expense.amount.toLocaleString()}</TableCell>
                      <TableCell>
                        {isAdmin && (
                          <AlertDialog>
@@ -187,7 +187,7 @@ const Expenses = () => {
             </Table>
           </div>
           <div className="mt-4 pt-4 border-t">
-            <p className="text-lg font-semibold">Total Expenses: ${totalExpenses.toLocaleString()}</p>
+            <p className="text-lg font-semibold">Total Expenses: ₹{totalExpenses.toLocaleString()}</p>
           </div>
         </CardContent>
       </Card>

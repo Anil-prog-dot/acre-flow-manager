@@ -5,14 +5,16 @@ import { useCustomers } from "@/hooks/useCustomers";
 import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useMiscellaneous } from "@/hooks/useMiscellaneous";
+import { useTrailerRecords } from "@/hooks/useTrailerRecords";
 
 const Dashboard = () => {
   const { customers, loading: customersLoading } = useCustomers();
   const { records: harvestorData, loading: harvestorLoading } = useHarvestorRecords();
   const { expenses, loading: expensesLoading } = useExpenses();
   const { records: miscellaneous, loading: miscLoading } = useMiscellaneous();
+  const { trailerRecords, isLoading: trailerLoading } = useTrailerRecords();
 
-  const loading = customersLoading || harvestorLoading || expensesLoading || miscLoading;
+  const loading = customersLoading || harvestorLoading || expensesLoading || miscLoading || trailerLoading;
 
   if (loading) {
     return (
@@ -27,6 +29,9 @@ const Dashboard = () => {
 
   // Calculate real statistics from stored data
   const harvestorRevenue = harvestorData.reduce((sum, record) => sum + (record.total || 0), 0);
+  const customerRevenue = 0; // Customer revenue will be calculated separately when needed
+  const trailerRevenue = trailerRecords.reduce((sum, record) => sum + (record.total || 0), 0);
+  const totalRevenue = harvestorRevenue + customerRevenue + trailerRevenue;
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const miscellaneousTotal = miscellaneous.reduce((sum, record) => sum + (record.amount || 0), 0);
   const totalHarvestorJobs = harvestorData.length;
@@ -49,14 +54,14 @@ const Dashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `$${harvestorRevenue.toLocaleString()}`,
-      description: "From harvestor",
+      value: `₹${totalRevenue.toLocaleString()}`,
+      description: "All revenue sources",
       icon: BarChart3,
       color: "text-success"
     },
     {
       title: "Total Expenses",
-      value: `$${(totalExpenses + miscellaneousTotal).toLocaleString()}`,
+      value: `₹${(totalExpenses + miscellaneousTotal).toLocaleString()}`,
       description: "All expenses",
       icon: Receipt,
       color: "text-warning"
@@ -65,10 +70,12 @@ const Dashboard = () => {
 
   const chartData = [
     {
-      name: 'Revenue vs Expenses',
-      Revenue: harvestorRevenue,
-      Expenses: totalExpenses,
-      Miscellaneous: miscellaneousTotal,
+      name: 'Financial Overview',
+      'Customer Revenue': customerRevenue,
+      'Harvestor Revenue': harvestorRevenue,
+      'Trailer Revenue': trailerRevenue,
+      'General Expenses': totalExpenses,
+      'Miscellaneous': miscellaneousTotal,
     }
   ];
 
@@ -100,7 +107,7 @@ const Dashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle>Revenue vs Expenses Breakdown</CardTitle>
-          <CardDescription>Monthly comparison of revenue and expense categories</CardDescription>
+          <CardDescription>Comprehensive view of all revenue sources vs expenses</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
@@ -108,11 +115,13 @@ const Dashboard = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
+              <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
               <Legend />
-              <Bar dataKey="Revenue" fill="hsl(var(--success))" name="Revenue" />
-              <Bar dataKey="Expenses" fill="hsl(var(--destructive))" name="General Expenses" />
-              <Bar dataKey="Miscellaneous" fill="hsl(var(--primary))" name="Miscellaneous" />
+              <Bar dataKey="Customer Revenue" fill="hsl(var(--primary))" name="Customer Revenue" />
+              <Bar dataKey="Harvestor Revenue" fill="hsl(var(--success))" name="Harvestor Revenue" />
+              <Bar dataKey="Trailer Revenue" fill="hsl(var(--accent))" name="Trailer Revenue" />
+              <Bar dataKey="General Expenses" fill="hsl(var(--destructive))" name="General Expenses" />
+              <Bar dataKey="Miscellaneous" fill="hsl(var(--warning))" name="Miscellaneous" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

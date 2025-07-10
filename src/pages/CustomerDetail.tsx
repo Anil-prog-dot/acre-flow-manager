@@ -71,16 +71,24 @@ const CustomerDetail = () => {
   const handleEditCost = async (recordId: string, newCost: number) => {
     const record = records.find(r => r.id === recordId);
     if (record) {
+      const newTotal = (record.acres * newCost) - (record.discount || 0);
       await updateRecord(recordId, { 
         cost: newCost, 
-        total: record.acres * newCost 
+        total: newTotal 
       });
     }
     setEditingRecord(null);
   };
 
   const handleDiscountChange = async (recordId: string, discount: number) => {
-    await updateRecord(recordId, { discount });
+    const record = records.find(r => r.id === recordId);
+    if (record) {
+      const newTotal = (record.acres * record.cost) - discount;
+      await updateRecord(recordId, { 
+        discount: discount,
+        total: newTotal 
+      });
+    }
     setEditingDiscount(null);
   };
 
@@ -183,7 +191,7 @@ const CustomerDetail = () => {
           <CardContent className="space-y-2">
             <p><strong>Total Records:</strong> {records.length}</p>
             <p><strong>Total Acres:</strong> {totalAcres}</p>
-            <p><strong>Total Amount:</strong> ${totalAmount.toLocaleString()}</p>
+            <p><strong>Total Amount:</strong> ₹{totalAmount.toLocaleString()}</p>
           </CardContent>
         </Card>
 
@@ -361,7 +369,7 @@ const CustomerDetail = () => {
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          <span>${record.cost}</span>
+                          <span>₹{record.cost}</span>
                           <Button 
                             size="sm" 
                             variant="ghost"
@@ -372,7 +380,7 @@ const CustomerDetail = () => {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">${record.total.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
                     <TableCell>
                       {editingDiscount === record.id ? (
                         <div className="flex items-center space-x-2">
@@ -409,7 +417,7 @@ const CustomerDetail = () => {
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          <span>${record.discount}</span>
+                          <span>₹{record.discount}</span>
                           <Button 
                             size="sm" 
                             variant="ghost"
@@ -420,7 +428,7 @@ const CustomerDetail = () => {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-bold">${finalAmount.toLocaleString()}</TableCell>
+                    <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge 
                         variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}

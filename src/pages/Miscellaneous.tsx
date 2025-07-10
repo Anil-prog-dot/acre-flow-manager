@@ -153,7 +153,7 @@ const Miscellaneous = () => {
                     {records.map((record) => (
                       <TableRow key={record.id}>
                         <TableCell>{record.date}</TableCell>
-                        <TableCell>${record.amount.toLocaleString()}</TableCell>
+                        <TableCell>₹{record.amount.toLocaleString()}</TableCell>
                         <TableCell>{record.description}</TableCell>
                          <TableCell>
                            {isAdmin && (
@@ -190,7 +190,7 @@ const Miscellaneous = () => {
                 </Table>
               </div>
               <div className="mt-4 pt-4 border-t">
-                <p className="text-lg font-semibold">Total Amount: ${totalAmount.toLocaleString()}</p>
+                <p className="text-lg font-semibold">Total Amount: ₹{totalAmount.toLocaleString()}</p>
               </div>
             </>
           ) : (
