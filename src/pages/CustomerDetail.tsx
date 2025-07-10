@@ -334,7 +334,7 @@ const CustomerDetail = () => {
                     <TableCell>{record.type}</TableCell>
                     <TableCell>{record.acres}</TableCell>
                     <TableCell>
-                      {editingRecord === record.id ? (
+                      {editingRecord === record.id && !record.paid ? (
                         <div className="flex items-center space-x-2">
                           <Input
                             type="number"
@@ -354,7 +354,9 @@ const CustomerDetail = () => {
                             variant="ghost"
                             onClick={() => {
                               const input = document.querySelector(`input[defaultValue="${record.cost}"]`) as HTMLInputElement;
-                              handleEditCost(record.id, Number(input.value));
+                              if (input) {
+                                handleEditCost(record.id, Number(input.value));
+                              }
                             }}
                           >
                             <Check className="h-4 w-4" />
@@ -370,19 +372,21 @@ const CustomerDetail = () => {
                       ) : (
                         <div className="flex items-center space-x-2">
                           <span>₹{record.cost}</span>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => setEditingRecord(record.id)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {!record.paid && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => setEditingRecord(record.id)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
                     <TableCell>
-                      {editingDiscount === record.id ? (
+                      {editingDiscount === record.id && !record.paid ? (
                         <div className="flex items-center space-x-2">
                           <Input
                             type="number"
@@ -402,7 +406,9 @@ const CustomerDetail = () => {
                             variant="ghost"
                             onClick={() => {
                               const input = document.querySelector(`input[defaultValue="${record.discount}"]`) as HTMLInputElement;
-                              handleDiscountChange(record.id, Number(input.value));
+                              if (input) {
+                                handleDiscountChange(record.id, Number(input.value));
+                              }
                             }}
                           >
                             <Check className="h-4 w-4" />
@@ -418,13 +424,15 @@ const CustomerDetail = () => {
                       ) : (
                         <div className="flex items-center space-x-2">
                           <span>₹{record.discount}</span>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => setEditingDiscount(record.id)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {!record.paid && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => setEditingDiscount(record.id)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </TableCell>

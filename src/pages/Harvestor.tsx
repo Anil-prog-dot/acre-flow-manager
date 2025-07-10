@@ -271,7 +271,7 @@ const Harvestor = () => {
                     <TableCell className="font-medium">{record.customer_name}</TableCell>
                     <TableCell>{record.acres}</TableCell>
                     <TableCell>
-                      {editingRecord === record.id ? (
+                      {editingRecord === record.id && !record.paid ? (
                         <div className="flex items-center space-x-2">
                           <Input
                             type="number"
@@ -292,7 +292,9 @@ const Harvestor = () => {
                             variant="ghost"
                             onClick={() => {
                               const input = document.querySelector(`input[defaultValue="${record.cost}"]`) as HTMLInputElement;
-                              handleEditCost(record.id, Number(input.value));
+                              if (input) {
+                                handleEditCost(record.id, Number(input.value));
+                              }
                             }}
                           >
                             <Check className="h-4 w-4" />
@@ -308,18 +310,20 @@ const Harvestor = () => {
                       ) : (
                         <div className="flex items-center space-x-2">
                           <span>₹{record.cost}</span>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => setEditingRecord(record.id)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {!record.paid && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => setEditingRecord(record.id)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </TableCell>
                     <TableCell>
-                      {editingDiscount === record.id ? (
+                      {editingDiscount === record.id && !record.paid ? (
                         <div className="flex items-center space-x-2">
                           <Input
                             type="number"
@@ -340,7 +344,9 @@ const Harvestor = () => {
                             variant="ghost"
                             onClick={() => {
                               const input = document.querySelector(`input[defaultValue="${record.discount || 0}"]`) as HTMLInputElement;
-                              handleDiscountChange(record.id, Number(input.value));
+                              if (input) {
+                                handleDiscountChange(record.id, Number(input.value));
+                              }
                             }}
                           >
                             <Check className="h-4 w-4" />
@@ -356,13 +362,15 @@ const Harvestor = () => {
                       ) : (
                         <div className="flex items-center space-x-2">
                           <span>₹{record.discount || 0}</span>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => setEditingDiscount(record.id)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {!record.paid && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => setEditingDiscount(record.id)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </TableCell>

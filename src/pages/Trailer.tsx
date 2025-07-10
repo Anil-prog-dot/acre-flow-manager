@@ -46,8 +46,8 @@ export default function Trailer() {
       date: new Date(),
       name: "",
       type: "",
-      no_of_trips: 1,
-      cost: 0,
+      no_of_trips: undefined,
+      cost: undefined,
       discount: 0,
     },
   });
@@ -128,7 +128,7 @@ export default function Trailer() {
   const renderEditableCell = (record: TrailerRecord, field: string, value: number) => {
     const isEditing = editingField?.id === record.id && editingField?.field === field;
     
-    if (isEditing) {
+    if (isEditing && !record.paid) {
       return (
         <div className="flex items-center space-x-2">
           <Input
@@ -157,6 +157,12 @@ export default function Trailer() {
             <X className="h-4 w-4" />
           </Button>
         </div>
+      );
+    }
+
+    if (record.paid) {
+      return (
+        <span>{field === 'cost' || field === 'discount' ? formatCurrency(value) : value}</span>
       );
     }
 
@@ -280,8 +286,9 @@ export default function Trailer() {
                           <Input 
                             type="number" 
                             min="1"
+                            placeholder="Enter number of trips"
                             {...field} 
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -300,8 +307,9 @@ export default function Trailer() {
                             type="number" 
                             min="0"
                             step="0.01"
+                            placeholder="Enter cost per trip"
                             {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
                           />
                         </FormControl>
                         <FormMessage />
