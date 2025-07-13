@@ -402,18 +402,27 @@ export default function Trailer() {
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => {
-                              const confirmed = window.confirm("Are you sure you want to mark this record as paid? This action will change the payment status.");
-                              if (confirmed) {
-                                markPaid({ id: record.id, paid: true });
-                              }
-                            }}
-                          >
-                            Mark Paid
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="default">
+                                Mark Paid
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>⚠️ Mark as Paid</DialogTitle>
+                                <DialogDescription>
+                                  Are you sure you want to mark this record as paid? This action will move the record to the paid section.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="flex justify-end space-x-2 mt-4">
+                                <Button variant="outline">Cancel</Button>
+                                <Button onClick={() => markPaid({ id: record.id, paid: true })}>
+                                  Mark as Paid
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           {isAdmin && (
                             <Button
                               size="sm"
@@ -474,26 +483,42 @@ export default function Trailer() {
                       <TableCell>
                         <Badge variant="default">Paid</Badge>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => markPaid({ id: record.id, paid: false })}
-                          >
-                            Mark Unpaid
-                          </Button>
-                          {isAdmin && (
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => deleteTrailerRecord(record.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                       <TableCell>
+                         <div className="flex space-x-2">
+                           {isAdmin && (
+                             <Dialog>
+                               <DialogTrigger asChild>
+                                 <Button size="sm" variant="destructive">
+                                   Mark Unpaid
+                                 </Button>
+                               </DialogTrigger>
+                               <DialogContent>
+                                 <DialogHeader>
+                                   <DialogTitle>⚠️ Mark as Unpaid</DialogTitle>
+                                   <DialogDescription>
+                                     Are you sure you want to mark this record as unpaid? This action will move the record back to active records. Only administrators can perform this action.
+                                   </DialogDescription>
+                                 </DialogHeader>
+                                 <div className="flex justify-end space-x-2 mt-4">
+                                   <Button variant="outline">Cancel</Button>
+                                   <Button onClick={() => markPaid({ id: record.id, paid: false })}>
+                                     Mark as Unpaid
+                                   </Button>
+                                 </div>
+                               </DialogContent>
+                             </Dialog>
+                           )}
+                           {isAdmin && (
+                             <Button
+                               size="sm"
+                               variant="destructive"
+                               onClick={() => deleteTrailerRecord(record.id)}
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </Button>
+                           )}
+                         </div>
+                       </TableCell>
                     </TableRow>
                   ))}
                   {paidRecords.length === 0 && (

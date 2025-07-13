@@ -26,15 +26,10 @@ const Harvestor = () => {
     discount: ""
   });
 
-  const togglePaymentStatus = async (recordId: string) => {
-    const record = records.find(r => r.id === recordId);
-    if (record && updateRecord && !record.paid) {
-      const confirmed = window.confirm("Are you sure you want to mark this record as paid? This action will change the payment status.");
-      if (confirmed) {
-        await updateRecord(recordId, { paid: !record.paid });
-      }
-    } else if (record && updateRecord) {
-      await updateRecord(recordId, { paid: !record.paid });
+  const togglePaymentStatus = async (recordId: string, currentStatus: boolean) => {
+    // No confirmation needed, will be handled by AlertDialog
+    if (updateRecord) {
+      await updateRecord(recordId, { paid: !currentStatus });
     }
   };
 
@@ -383,22 +378,57 @@ const Harvestor = () => {
                     <TableCell>
                       <Badge 
                         variant={record.paid ? 'default' : 'secondary'}
-                        className={!showPaidRecords ? "cursor-pointer" : ""}
-                        onClick={!showPaidRecords ? () => togglePaymentStatus(record.id) : undefined}
                       >
                         {record.paid ? 'paid' : 'pending'}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-1">
-                        {!showPaidRecords && (
-                          <Button
-                            size="sm"
-                            variant={record.paid ? "destructive" : "default"}
-                            onClick={() => togglePaymentStatus(record.id)}
-                          >
-                            {record.paid ? "Mark Unpaid" : "Mark Paid"}
-                          </Button>
+                        {!showPaidRecords && !record.paid && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="default">
+                                Mark Paid
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>⚠️ Mark as Paid</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to mark this record as paid? This action will move the record to the paid section.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => togglePaymentStatus(record.id, record.paid)}>
+                                  Mark as Paid
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                        {showPaidRecords && record.paid && isAdmin && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="destructive">
+                                Mark Unpaid
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>⚠️ Mark as Unpaid</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to mark this record as unpaid? This action will move the record back to active records. Only administrators can perform this action.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => togglePaymentStatus(record.id, record.paid)}>
+                                  Mark as Unpaid
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
                         {isAdmin && (
                           <AlertDialog>

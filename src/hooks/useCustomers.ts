@@ -70,6 +70,29 @@ export const useCustomers = () => {
     }
   };
 
+  const updateCustomer = async (id: string, customerData: Partial<Omit<Customer, 'id'>>) => {
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .update(customerData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Customer updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update customer",
+        variant: "destructive"
+      });
+    }
+  };
+
   const deleteCustomer = async (id: string) => {
     try {
       const { error } = await supabase
@@ -98,6 +121,7 @@ export const useCustomers = () => {
     customers,
     loading,
     addCustomer,
+    updateCustomer,
     deleteCustomer,
     refetch: fetchCustomers
   };

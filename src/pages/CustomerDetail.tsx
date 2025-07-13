@@ -16,15 +16,18 @@ import { useAuth } from "@/components/auth/AuthProvider";
 
 const CustomerDetail = () => {
   const { id } = useParams();
-  const { customers, loading: customersLoading } = useCustomers();
+  const { customers, loading: customersLoading, updateCustomer } = useCustomers();
   const { records, loading: recordsLoading, addRecord, updateRecord, deleteRecord } = useCustomerRecords(id);
   const { isAdmin } = useAuth();
   const [customer, setCustomer] = useState<any>(null);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [phoneValue, setPhoneValue] = useState("");
 
   useEffect(() => {
     if (customers.length > 0 && id) {
       const foundCustomer = customers.find((c: any) => c.id === id);
       setCustomer(foundCustomer || null);
+      setPhoneValue(foundCustomer?.phone || "");
     }
   }, [customers, id]);
   const [showPaidRecords, setShowPaidRecords] = useState(false);
@@ -35,7 +38,8 @@ const CustomerDetail = () => {
     date: "",
     type: "",
     acres: "",
-    cost: ""
+    cost: "",
+    phone: ""
   });
   const { toast } = useToast();
 
@@ -64,7 +68,7 @@ const CustomerDetail = () => {
     };
 
     await addRecord(newRecord);
-    setFormData({ date: "", type: "", acres: "", cost: "" });
+    setFormData({ date: "", type: "", acres: "", cost: "", phone: "" });
     setIsDialogOpen(false);
   };
 
@@ -92,20 +96,20 @@ const CustomerDetail = () => {
     setEditingDiscount(null);
   };
 
-  const togglePaymentStatus = async (recordId: string) => {
-    const record = records.find(r => r.id === recordId);
-    if (record && !record.paid) {
-      const confirmed = window.confirm("Are you sure you want to mark this record as paid? This action will change the payment status.");
-      if (confirmed) {
-        await updateRecord(recordId, { paid: !record.paid });
-      }
-    } else if (record) {
-      await updateRecord(recordId, { paid: !record.paid });
-    }
+  const togglePaymentStatus = async (recordId: string, currentStatus: boolean) => {
+    // No confirmation needed, will be handled by AlertDialog
+    await updateRecord(recordId, { paid: !currentStatus });
   };
 
   const handleDeleteRecord = async (recordId: string) => {
     await deleteRecord(recordId);
+  };
+
+  const handlePhoneUpdate = async () => {
+    if (id && customer) {
+      await updateCustomer(id, { phone: phoneValue });
+      setEditingPhone(false);
+    }
   };
 
   const isOverdue = (dateString: string) => {
@@ -183,9 +187,42 @@ const CustomerDetail = () => {
             <CardTitle>Contact Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p><strong>Email:</strong> {customer.email}</p>
-            <p><strong>Phone:</strong> {customer.phone}</p>
-            <p><strong>Location:</strong> {customer.location}</p>
+            <p><strong>Email:</strong> {customer.email || 'Not provided'}</p>
+            <p className="flex items-center gap-2">
+              <strong>Phone:</strong> 
+              {editingPhone ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="tel"
+                    value={phoneValue}
+                    onChange={(e) => setPhoneValue(e.target.value)}
+                    placeholder="Enter phone number"
+                    className="w-40"
+                  />
+                  <Button size="sm" onClick={handlePhoneUpdate}>
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setEditingPhone(false);
+                    setPhoneValue(customer?.phone || "");
+                  }}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>{customer.phone || 'Not provided'}</span>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => setEditingPhone(true)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </p>
+            <p><strong>Location:</strong> {customer.location || 'Not provided'}</p>
           </CardContent>
         </Card>
 
@@ -296,6 +333,17 @@ const CustomerDetail = () => {
                           onChange={handleInputChange}
                           placeholder="Enter cost per acre"
                           required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">Phone Number (Optional)</Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="Enter phone number (optional)"
                         />
                       </div>
                       <div className="flex justify-end space-x-2">
@@ -449,22 +497,57 @@ const CustomerDetail = () => {
                     <TableCell>
                       <Badge 
                         variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
-                        className={!showPaidRecords ? "cursor-pointer" : ""}
-                        onClick={!showPaidRecords ? () => togglePaymentStatus(record.id) : undefined}
                       >
                         {paymentStatus}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-1">
-                        {!showPaidRecords && (
-                          <Button
-                            size="sm"
-                            variant={record.paid ? "destructive" : "default"}
-                            onClick={() => togglePaymentStatus(record.id)}
-                          >
-                            {record.paid ? "Mark Unpaid" : "Mark Paid"}
-                          </Button>
+                        {!showPaidRecords && !record.paid && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="default">
+                                Mark Paid
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>⚠️ Mark as Paid</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to mark this record as paid? This action will move the record to the paid section.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => togglePaymentStatus(record.id, record.paid)}>
+                                  Mark as Paid
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                        {showPaidRecords && record.paid && isAdmin && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="destructive">
+                                Mark Unpaid
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>⚠️ Mark as Unpaid</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to mark this record as unpaid? This action will move the record back to active records. Only administrators can perform this action.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => togglePaymentStatus(record.id, record.paid)}>
+                                  Mark as Unpaid
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
                         {isAdmin && (
                           <AlertDialog>
