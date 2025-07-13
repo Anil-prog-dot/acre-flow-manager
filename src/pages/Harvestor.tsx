@@ -28,7 +28,12 @@ const Harvestor = () => {
 
   const togglePaymentStatus = async (recordId: string) => {
     const record = records.find(r => r.id === recordId);
-    if (record && updateRecord) {
+    if (record && updateRecord && !record.paid) {
+      const confirmed = window.confirm("Are you sure you want to mark this record as paid? This action will change the payment status.");
+      if (confirmed) {
+        await updateRecord(recordId, { paid: !record.paid });
+      }
+    } else if (record && updateRecord) {
       await updateRecord(recordId, { paid: !record.paid });
     }
   };

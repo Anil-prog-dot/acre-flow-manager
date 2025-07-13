@@ -2,6 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BarChart3, Users, Tractor, Receipt } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useCustomers } from "@/hooks/useCustomers";
+import { useCustomerRecords } from "@/hooks/useCustomerRecords";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useMiscellaneous } from "@/hooks/useMiscellaneous";
@@ -13,8 +16,31 @@ const Dashboard = () => {
   const { expenses, loading: expensesLoading } = useExpenses();
   const { records: miscellaneous, loading: miscLoading } = useMiscellaneous();
   const { trailerRecords, isLoading: trailerLoading } = useTrailerRecords();
+  
+  // Get all customer records for revenue calculation
+  const [allCustomerRecords, setAllCustomerRecords] = useState<any[]>([]);
+  const [customerRecordsLoading, setCustomerRecordsLoading] = useState(true);
 
-  const loading = customersLoading || harvestorLoading || expensesLoading || miscLoading || trailerLoading;
+  useEffect(() => {
+    const fetchAllCustomerRecords = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('customer_records')
+          .select('*');
+        
+        if (error) throw error;
+        setAllCustomerRecords(data || []);
+      } catch (error) {
+        console.error('Error fetching customer records:', error);
+      } finally {
+        setCustomerRecordsLoading(false);
+      }
+    };
+
+    fetchAllCustomerRecords();
+  }, []);
+
+  const loading = customersLoading || harvestorLoading || expensesLoading || miscLoading || trailerLoading || customerRecordsLoading;
 
   if (loading) {
     return (
@@ -29,12 +55,12 @@ const Dashboard = () => {
 
   // Calculate real statistics from stored data
   const harvestorRevenue = harvestorData.reduce((sum, record) => sum + (record.total || 0), 0);
-  const customerRevenue = 0; // Customer revenue will be calculated separately when needed
+  const customerRevenue = allCustomerRecords.reduce((sum, record) => sum + (record.total || 0), 0);
   const trailerRevenue = trailerRecords.reduce((sum, record) => sum + (record.total || 0), 0);
   const totalRevenue = harvestorRevenue + customerRevenue + trailerRevenue;
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const miscellaneousTotal = miscellaneous.reduce((sum, record) => sum + (record.amount || 0), 0);
-  const totalHarvestorJobs = harvestorData.length;
+  const totalHarvestorAcres = harvestorData.reduce((sum, record) => sum + (record.acres || 0), 0);
   const totalCustomers = customers.length;
 
   const stats = [
@@ -46,9 +72,9 @@ const Dashboard = () => {
       color: "text-primary"
     },
     {
-      title: "Harvestor Jobs",
-      value: totalHarvestorJobs.toString(),
-      description: "Total jobs",
+      title: "Harvestor Acres",
+      value: totalHarvestorAcres.toString(),
+      description: "Total acres",
       icon: Tractor,
       color: "text-accent"
     },

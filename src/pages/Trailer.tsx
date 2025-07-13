@@ -405,7 +405,12 @@ export default function Trailer() {
                           <Button
                             size="sm"
                             variant="default"
-                            onClick={() => markPaid({ id: record.id, paid: true })}
+                            onClick={() => {
+                              const confirmed = window.confirm("Are you sure you want to mark this record as paid? This action will change the payment status.");
+                              if (confirmed) {
+                                markPaid({ id: record.id, paid: true });
+                              }
+                            }}
                           >
                             Mark Paid
                           </Button>

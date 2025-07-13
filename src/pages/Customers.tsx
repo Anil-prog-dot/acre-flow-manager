@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useState as reactUseState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Customers = () => {
   const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
@@ -18,6 +20,29 @@ const Customers = () => {
   const [formData, setFormData] = useState({
     name: ""
   });
+  
+  // State for customer records and revenue
+  const [allCustomerRecords, setAllCustomerRecords] = reactUseState<any[]>([]);
+  const [customerRecordsLoading, setCustomerRecordsLoading] = reactUseState(true);
+
+  useEffect(() => {
+    const fetchAllCustomerRecords = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('customer_records')
+          .select('*');
+        
+        if (error) throw error;
+        setAllCustomerRecords(data || []);
+      } catch (error) {
+        console.error('Error fetching customer records:', error);
+      } finally {
+        setCustomerRecordsLoading(false);
+      }
+    };
+
+    fetchAllCustomerRecords();
+  }, []);
 
   // For now, paid customers functionality is disabled until we implement it properly
   const paidCustomers: any[] = [];
@@ -50,7 +75,7 @@ const Customers = () => {
     await deleteCustomer(id);
   };
 
-  if (loading) {
+  if (loading || customerRecordsLoading) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -62,6 +87,9 @@ const Customers = () => {
       </div>
     );
   }
+  
+  // Calculate total revenue from all customer records
+  const totalCustomerRevenue = allCustomerRecords.reduce((sum, record) => sum + (record.total || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -120,6 +148,29 @@ const Customers = () => {
           </DialogContent>
         </Dialog>
         </div>
+      </div>
+
+      {/* Customer Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Customers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{customers.length}</div>
+            <p className="text-sm text-muted-foreground">Active customers</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">₹{totalCustomerRevenue.toLocaleString()}</div>
+            <p className="text-sm text-muted-foreground">From all customer records</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      assets: {
+        Row: {
+          cost_of_purchase: number
+          created_at: string
+          date_of_purchase: string
+          id: string
+          total: number
+          type_of_purchase: string
+          updated_at: string
+          user_id: string
+          weight_area: string | null
+        }
+        Insert: {
+          cost_of_purchase: number
+          created_at?: string
+          date_of_purchase: string
+          id?: string
+          total: number
+          type_of_purchase: string
+          updated_at?: string
+          user_id: string
+          weight_area?: string | null
+        }
+        Update: {
+          cost_of_purchase?: number
+          created_at?: string
+          date_of_purchase?: string
+          id?: string
+          total?: number
+          type_of_purchase?: string
+          updated_at?: string
+          user_id?: string
+          weight_area?: string | null
+        }
+        Relationships: []
+      }
+      borrowing_records: {
+        Row: {
+          created_at: string
+          current_interest: number
+          current_total: number
+          date: string
+          days_elapsed: number
+          id: string
+          interest: number
+          lender_name: string
+          principal_amount: number
+          rate_of_interest: number
+          status: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_interest: number
+          current_total: number
+          date: string
+          days_elapsed?: number
+          id?: string
+          interest: number
+          lender_name: string
+          principal_amount: number
+          rate_of_interest: number
+          status?: string
+          total: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_interest?: number
+          current_total?: number
+          date?: string
+          days_elapsed?: number
+          id?: string
+          interest?: number
+          lender_name?: string
+          principal_amount?: number
+          rate_of_interest?: number
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       customer_records: {
         Row: {
           acres: number
@@ -157,6 +244,57 @@ export type Database = {
           paid?: boolean | null
           total?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      lending_records: {
+        Row: {
+          borrower_name: string
+          created_at: string
+          current_interest: number
+          current_total: number
+          date: string
+          days_elapsed: number
+          id: string
+          interest: number
+          principal_amount: number
+          rate_of_interest: number
+          status: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          borrower_name: string
+          created_at?: string
+          current_interest: number
+          current_total: number
+          date: string
+          days_elapsed?: number
+          id?: string
+          interest: number
+          principal_amount: number
+          rate_of_interest: number
+          status?: string
+          total: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          borrower_name?: string
+          created_at?: string
+          current_interest?: number
+          current_total?: number
+          date?: string
+          days_elapsed?: number
+          id?: string
+          interest?: number
+          principal_amount?: number
+          rate_of_interest?: number
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

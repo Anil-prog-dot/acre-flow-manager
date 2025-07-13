@@ -94,7 +94,12 @@ const CustomerDetail = () => {
 
   const togglePaymentStatus = async (recordId: string) => {
     const record = records.find(r => r.id === recordId);
-    if (record) {
+    if (record && !record.paid) {
+      const confirmed = window.confirm("Are you sure you want to mark this record as paid? This action will change the payment status.");
+      if (confirmed) {
+        await updateRecord(recordId, { paid: !record.paid });
+      }
+    } else if (record) {
       await updateRecord(recordId, { paid: !record.paid });
     }
   };
@@ -273,6 +278,7 @@ const CustomerDetail = () => {
                           id="acres"
                           name="acres"
                           type="number"
+                          step="0.01"
                           value={formData.acres}
                           onChange={handleInputChange}
                           placeholder="Enter number of acres"
@@ -285,6 +291,7 @@ const CustomerDetail = () => {
                           id="cost"
                           name="cost"
                           type="number"
+                          step="0.01"
                           value={formData.cost}
                           onChange={handleInputChange}
                           placeholder="Enter cost per acre"
@@ -338,6 +345,7 @@ const CustomerDetail = () => {
                         <div className="flex items-center space-x-2">
                           <Input
                             type="number"
+                            step="0.01"
                             defaultValue={record.cost}
                             className="w-20"
                             onKeyDown={(e) => {
@@ -390,6 +398,7 @@ const CustomerDetail = () => {
                         <div className="flex items-center space-x-2">
                           <Input
                             type="number"
+                            step="0.01"
                             defaultValue={record.discount}
                             className="w-20"
                             onKeyDown={(e) => {
