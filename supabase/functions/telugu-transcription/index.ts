@@ -42,6 +42,14 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Telugu transcription function called')
+    
+    const openaiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openaiKey) {
+      console.error('OPENAI_API_KEY not found')
+      throw new Error('OpenAI API key not configured')
+    }
+    
     const { audio } = await req.json()
     
     if (!audio) {
@@ -59,19 +67,23 @@ serve(async (req) => {
     formData.append('language', 'te') // Telugu language code
 
     // Send to OpenAI
+    console.log('Sending audio to OpenAI for transcription')
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openaiKey}`,
       },
       body: formData,
     })
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${await response.text()}`)
+      const errorText = await response.text()
+      console.error('OpenAI API error:', errorText)
+      throw new Error(`OpenAI API error: ${errorText}`)
     }
 
     const result = await response.json()
+    console.log('Transcription successful:', result.text)
 
     return new Response(
       JSON.stringify({ text: result.text }),

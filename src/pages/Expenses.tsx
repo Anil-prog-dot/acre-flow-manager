@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
 
 const Expenses = () => {
   const { expenses, loading, addExpense, deleteExpense } = useExpenses();
@@ -92,14 +93,20 @@ const Expenses = () => {
                 <form onSubmit={handleAddExpense} className="space-y-4">
                   <div>
                     <Label htmlFor="description">Item/Description *</Label>
-                    <Input
-                      id="description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      placeholder="Enter expense item"
-                      required
-                    />
+                    <div className="space-y-2">
+                      <Input
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        placeholder="Enter expense item"
+                        required
+                      />
+                      <VoiceRecorder 
+                        onTranscription={(text) => setFormData(prev => ({ ...prev, description: text }))}
+                        placeholder="Click mic to record description in Telugu"
+                      />
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="date">Date *</Label>

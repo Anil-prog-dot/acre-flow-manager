@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileText, Plus, Trash2 } from "lucide-react";
 import { useMiscellaneous } from "@/hooks/useMiscellaneous";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
 
 const Miscellaneous = () => {
   const { records, loading, addRecord, deleteRecord } = useMiscellaneous();
@@ -116,14 +117,20 @@ const Miscellaneous = () => {
                   </div>
                   <div>
                     <Label htmlFor="description">Description *</Label>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      placeholder="Enter description"
-                      required
-                    />
+                    <div className="space-y-2">
+                      <Textarea
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        placeholder="Enter description"
+                        required
+                      />
+                      <VoiceRecorder 
+                        onTranscription={(text) => setFormData(prev => ({ ...prev, description: text }))}
+                        placeholder="Click mic to record description in Telugu"
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-end space-x-2">
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
