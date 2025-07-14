@@ -18,6 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTrailerRecords, TrailerRecord } from "@/hooks/useTrailerRecords";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   date: z.date({
@@ -28,6 +30,7 @@ const formSchema = z.object({
   no_of_trips: z.number().min(1, "Number of trips must be at least 1"),
   cost: z.number().min(0, "Cost must be non-negative"),
   discount: z.number().min(0, "Discount must be non-negative"),
+  description: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -49,8 +52,13 @@ export default function Trailer() {
       no_of_trips: undefined,
       cost: undefined,
       discount: undefined,
+      description: "",
     },
   });
+
+  const handleVoiceTranscription = (text: string, field: string) => {
+    form.setValue(field as keyof FormData, text);
+  };
 
   const activeRecords = trailerRecords.filter(record => !record.paid);
   const paidRecords = trailerRecords.filter(record => record.paid);
@@ -67,6 +75,7 @@ export default function Trailer() {
       discount: data.discount || 0,
       total,
       paid: false,
+      description: data.description || "",
     };
 
     if (editingRecord) {
@@ -89,6 +98,7 @@ export default function Trailer() {
       no_of_trips: record.no_of_trips,
       cost: record.cost,
       discount: record.discount,
+      description: record.description || "",
     });
     setIsDialogOpen(true);
   };
@@ -248,19 +258,24 @@ export default function Trailer() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                   <FormField
+                     control={form.control}
+                     name="name"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Name</FormLabel>
+                         <FormControl>
+                           <Input placeholder="Enter name" {...field} />
+                         </FormControl>
+                         <VoiceRecorder
+                           onTranscription={(text) => handleVoiceTranscription(text, 'name')}
+                           placeholder="Click mic to record name in Telugu"
+                           className="mt-2"
+                         />
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
 
                   <FormField
                     control={form.control}
@@ -317,29 +332,52 @@ export default function Trailer() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="discount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Discount</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            min="0"
-                            step="0.01"
-                            placeholder="Enter discount amount"
-                            {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                   <FormField
+                     control={form.control}
+                     name="discount"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Discount</FormLabel>
+                         <FormControl>
+                           <Input 
+                             type="number" 
+                             min="0"
+                             step="0.01"
+                             placeholder="Enter discount amount"
+                             {...field} 
+                             onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                           />
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                 </div>
 
-                <div className="flex justify-end space-x-2">
+                 <FormField
+                   control={form.control}
+                   name="description"
+                   render={({ field }) => (
+                     <FormItem>
+                       <FormLabel>Description (Optional)</FormLabel>
+                       <FormControl>
+                         <Textarea 
+                           placeholder="Enter description or use mic to record in Telugu"
+                           className="min-h-[80px]"
+                           {...field}
+                         />
+                       </FormControl>
+                       <VoiceRecorder
+                         onTranscription={(text) => handleVoiceTranscription(text, 'description')}
+                         placeholder="Click mic to record description in Telugu"
+                         className="mt-2"
+                       />
+                       <FormMessage />
+                     </FormItem>
+                   )}
+                  />
+
+                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
@@ -374,10 +412,11 @@ export default function Trailer() {
                     <TableHead>Type</TableHead>
                     <TableHead>Trips</TableHead>
                     <TableHead>Cost</TableHead>
-                    <TableHead>Discount</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                     <TableHead>Discount</TableHead>
+                     <TableHead>Total</TableHead>
+                     <TableHead>Description</TableHead>
+                     <TableHead>Status</TableHead>
+                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -388,11 +427,16 @@ export default function Trailer() {
                       <TableCell>{record.type}</TableCell>
                       <TableCell>{record.no_of_trips}</TableCell>
                       <TableCell>{renderEditableCell(record, 'cost', record.cost)}</TableCell>
-                      <TableCell>{renderEditableCell(record, 'discount', record.discount)}</TableCell>
-                      <TableCell>{formatCurrency(record.total)}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">Unpaid</Badge>
-                      </TableCell>
+                       <TableCell>{renderEditableCell(record, 'discount', record.discount)}</TableCell>
+                       <TableCell>{formatCurrency(record.total)}</TableCell>
+                       <TableCell>
+                         <div className="max-w-[200px] truncate" title={record.description || ''}>
+                           {record.description || 'No description'}
+                         </div>
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant="secondary">Unpaid</Badge>
+                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
@@ -436,13 +480,13 @@ export default function Trailer() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {activeRecords.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center text-muted-foreground">
-                        No active records found
-                      </TableCell>
-                    </TableRow>
-                  )}
+                   {activeRecords.length === 0 && (
+                     <TableRow>
+                       <TableCell colSpan={10} className="text-center text-muted-foreground">
+                         No active records found
+                       </TableCell>
+                     </TableRow>
+                   )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -464,10 +508,11 @@ export default function Trailer() {
                     <TableHead>Type</TableHead>
                     <TableHead>Trips</TableHead>
                     <TableHead>Cost</TableHead>
-                    <TableHead>Discount</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                     <TableHead>Discount</TableHead>
+                     <TableHead>Total</TableHead>
+                     <TableHead>Description</TableHead>
+                     <TableHead>Status</TableHead>
+                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -479,10 +524,15 @@ export default function Trailer() {
                       <TableCell>{record.no_of_trips}</TableCell>
                       <TableCell>{formatCurrency(record.cost)}</TableCell>
                       <TableCell>{formatCurrency(record.discount)}</TableCell>
-                      <TableCell>{formatCurrency(record.total)}</TableCell>
-                      <TableCell>
-                        <Badge variant="default">Paid</Badge>
-                      </TableCell>
+                       <TableCell>{formatCurrency(record.total)}</TableCell>
+                       <TableCell>
+                         <div className="max-w-[200px] truncate" title={record.description || ''}>
+                           {record.description || 'No description'}
+                         </div>
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant="default">Paid</Badge>
+                       </TableCell>
                        <TableCell>
                          <div className="flex space-x-2">
                            {isAdmin && (
@@ -521,13 +571,13 @@ export default function Trailer() {
                        </TableCell>
                     </TableRow>
                   ))}
-                  {paidRecords.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center text-muted-foreground">
-                        No paid records found
-                      </TableCell>
-                    </TableRow>
-                  )}
+                   {paidRecords.length === 0 && (
+                     <TableRow>
+                       <TableCell colSpan={10} className="text-center text-muted-foreground">
+                         No paid records found
+                       </TableCell>
+                     </TableRow>
+                   )}
                 </TableBody>
               </Table>
             </CardContent>

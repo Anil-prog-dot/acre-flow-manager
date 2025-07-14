@@ -12,6 +12,7 @@ export interface CustomerRecord {
   total: number;
   discount: number;
   paid: boolean;
+  description?: string;
 }
 
 export const useCustomerRecords = (customerId?: string) => {

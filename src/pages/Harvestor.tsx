@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { Textarea } from "@/components/ui/textarea";
 
 const Harvestor = () => {
   const { records, loading, addRecord, updateRecord, deleteRecord } = useHarvestorRecords();
@@ -23,7 +25,8 @@ const Harvestor = () => {
     customer_name: "",
     acres: "",
     cost: "",
-    discount: ""
+    discount: "",
+    description: ""
   });
 
   const togglePaymentStatus = async (recordId: string, currentStatus: boolean) => {
@@ -44,10 +47,17 @@ const Harvestor = () => {
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleVoiceTranscription = (text: string, field: string) => {
+    setFormData({
+      ...formData,
+      [field]: text
     });
   };
 
@@ -70,10 +80,11 @@ const Harvestor = () => {
       cost: cost,
       discount: discount,
       total: total,
-      paid: false
+      paid: false,
+      description: formData.description
     });
 
-    setFormData({ date: "", customer_name: "", acres: "", cost: "", discount: "" });
+    setFormData({ date: "", customer_name: "", acres: "", cost: "", discount: "", description: "" });
     setIsDialogOpen(false);
   };
 
@@ -187,17 +198,22 @@ const Harvestor = () => {
                           required
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="customer_name">Customer Name *</Label>
-                        <Input
-                          id="customer_name"
-                          name="customer_name"
-                          value={formData.customer_name}
-                          onChange={handleInputChange}
-                          placeholder="Enter customer name"
-                          required
-                        />
-                      </div>
+                       <div>
+                         <Label htmlFor="customer_name">Customer Name *</Label>
+                         <Input
+                           id="customer_name"
+                           name="customer_name"
+                           value={formData.customer_name}
+                           onChange={handleInputChange}
+                           placeholder="Enter customer name"
+                           required
+                         />
+                         <VoiceRecorder
+                           onTranscription={(text) => handleVoiceTranscription(text, 'customer_name')}
+                           placeholder="Click mic to record customer name in Telugu"
+                           className="mt-2"
+                         />
+                       </div>
                       <div>
                         <Label htmlFor="acres">No of Acres *</Label>
                         <Input
@@ -224,18 +240,34 @@ const Harvestor = () => {
                           required
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="discount">Discount</Label>
-                        <Input
-                          id="discount"
-                          name="discount"
-                          type="number"
-                          step="0.01"
-                          value={formData.discount}
-                          onChange={handleInputChange}
-                          placeholder="Enter discount amount"
-                        />
-                      </div>
+                       <div>
+                         <Label htmlFor="discount">Discount</Label>
+                         <Input
+                           id="discount"
+                           name="discount"
+                           type="number"
+                           step="0.01"
+                           value={formData.discount}
+                           onChange={handleInputChange}
+                           placeholder="Enter discount amount"
+                         />
+                       </div>
+                       <div>
+                         <Label htmlFor="description">Description (Optional)</Label>
+                         <Textarea
+                           id="description"
+                           name="description"
+                           value={formData.description}
+                           onChange={handleInputChange}
+                           placeholder="Enter description or use mic to record in Telugu"
+                           className="min-h-[80px]"
+                         />
+                         <VoiceRecorder
+                           onTranscription={(text) => handleVoiceTranscription(text, 'description')}
+                           placeholder="Click mic to record description in Telugu"
+                           className="mt-2"
+                         />
+                       </div>
                       <div className="flex justify-end space-x-2">
                         <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                           Cancel
@@ -257,11 +289,12 @@ const Harvestor = () => {
                   <TableHead>Date</TableHead>
                   <TableHead>Customer Name</TableHead>
                   <TableHead>Acres</TableHead>
-                  <TableHead>Cost/Acre</TableHead>
-                  <TableHead>Discount</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Payment Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                   <TableHead>Cost/Acre</TableHead>
+                   <TableHead>Discount</TableHead>
+                   <TableHead>Total</TableHead>
+                   <TableHead>Description</TableHead>
+                   <TableHead>Payment Status</TableHead>
+                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -373,9 +406,14 @@ const Harvestor = () => {
                           )}
                         </div>
                       )}
-                    </TableCell>
-                    <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
-                    <TableCell>
+                     </TableCell>
+                     <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
+                     <TableCell>
+                       <div className="max-w-[200px] truncate" title={record.description || ''}>
+                         {record.description || 'No description'}
+                       </div>
+                     </TableCell>
+                     <TableCell>
                       <Badge 
                         variant={record.paid ? 'default' : 'secondary'}
                       >

@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useCustomerRecords } from "@/hooks/useCustomerRecords";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { Textarea } from "@/components/ui/textarea";
 
 const CustomerDetail = () => {
   const { id } = useParams();
@@ -39,14 +41,22 @@ const CustomerDetail = () => {
     type: "",
     acres: "",
     cost: "",
-    phone: ""
+    phone: "",
+    description: ""
   });
   const { toast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleVoiceTranscription = (text: string, field: string) => {
+    setFormData({
+      ...formData,
+      [field]: text
     });
   };
 
@@ -64,11 +74,12 @@ const CustomerDetail = () => {
       cost: Number(formData.cost),
       total: Number(formData.acres) * Number(formData.cost),
       discount: 0,
-      paid: false
+      paid: false,
+      description: formData.description
     };
 
     await addRecord(newRecord);
-    setFormData({ date: "", type: "", acres: "", cost: "", phone: "" });
+    setFormData({ date: "", type: "", acres: "", cost: "", phone: "", description: "" });
     setIsDialogOpen(false);
   };
 
@@ -335,17 +346,33 @@ const CustomerDetail = () => {
                           required
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="phone">Phone Number (Optional)</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          placeholder="Enter phone number (optional)"
-                        />
-                      </div>
+                       <div>
+                         <Label htmlFor="phone">Phone Number (Optional)</Label>
+                         <Input
+                           id="phone"
+                           name="phone"
+                           type="tel"
+                           value={formData.phone}
+                           onChange={handleInputChange}
+                           placeholder="Enter phone number (optional)"
+                         />
+                       </div>
+                       <div>
+                         <Label htmlFor="description">Description (Optional)</Label>
+                         <Textarea
+                           id="description"
+                           name="description"
+                           value={formData.description}
+                           onChange={handleInputChange}
+                           placeholder="Enter description or use mic to record in Telugu"
+                           className="min-h-[80px]"
+                         />
+                         <VoiceRecorder
+                           onTranscription={(text) => handleVoiceTranscription(text, 'description')}
+                           placeholder="Click mic to record description in Telugu"
+                           className="mt-2"
+                         />
+                       </div>
                       <div className="flex justify-end space-x-2">
                         <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                           Cancel
@@ -370,6 +397,7 @@ const CustomerDetail = () => {
                 <TableHead>Total Amount</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Final Amount</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Payment Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -493,13 +521,18 @@ const CustomerDetail = () => {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
-                      >
-                        {paymentStatus}
-                      </Badge>
+                     <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
+                     <TableCell>
+                       <div className="max-w-[200px] truncate" title={record.description || ''}>
+                         {record.description || 'No description'}
+                       </div>
+                     </TableCell>
+                     <TableCell>
+                       <Badge 
+                         variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
+                       >
+                         {paymentStatus}
+                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-1">

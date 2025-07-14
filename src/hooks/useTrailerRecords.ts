@@ -14,6 +14,7 @@ export interface TrailerRecord {
   paid: boolean;
   created_at: string;
   updated_at: string;
+  description?: string;
 }
 
 export const useTrailerRecords = () => {

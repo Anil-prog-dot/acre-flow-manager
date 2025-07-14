@@ -108,6 +108,7 @@ export type Database = {
           created_at: string
           customer_id: string
           date: string
+          description: string | null
           discount: number | null
           id: string
           paid: boolean | null
@@ -121,6 +122,7 @@ export type Database = {
           created_at?: string
           customer_id: string
           date: string
+          description?: string | null
           discount?: number | null
           id?: string
           paid?: boolean | null
@@ -134,6 +136,7 @@ export type Database = {
           created_at?: string
           customer_id?: string
           date?: string
+          description?: string | null
           discount?: number | null
           id?: string
           paid?: boolean | null
@@ -215,6 +218,7 @@ export type Database = {
           created_at: string
           customer_name: string
           date: string
+          description: string | null
           discount: number | null
           id: string
           paid: boolean | null
@@ -227,6 +231,7 @@ export type Database = {
           created_at?: string
           customer_name: string
           date: string
+          description?: string | null
           discount?: number | null
           id?: string
           paid?: boolean | null
@@ -239,6 +244,7 @@ export type Database = {
           created_at?: string
           customer_name?: string
           date?: string
+          description?: string | null
           discount?: number | null
           id?: string
           paid?: boolean | null
@@ -357,6 +363,7 @@ export type Database = {
           cost: number
           created_at: string
           date: string
+          description: string | null
           discount: number | null
           id: string
           name: string
@@ -370,6 +377,7 @@ export type Database = {
           cost: number
           created_at?: string
           date: string
+          description?: string | null
           discount?: number | null
           id?: string
           name: string
@@ -383,6 +391,7 @@ export type Database = {
           cost?: number
           created_at?: string
           date?: string
+          description?: string | null
           discount?: number | null
           id?: string
           name?: string
