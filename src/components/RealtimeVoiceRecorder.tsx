@@ -105,7 +105,7 @@ export const RealtimeVoiceRecorder: React.FC<RealtimeVoiceRecorderProps> = ({
   const connectWebSocket = useCallback(() => {
     return new Promise<WebSocket>((resolve, reject) => {
       const projectId = 'gnndcsxcpsauvyiutfbf';
-      const ws = new WebSocket(`wss://${projectId}.functions.supabase.co/realtime-transcription`);
+      const ws = new WebSocket(`wss://${projectId}.functions.supabase.co/functions/v1/realtime-transcription`);
       
       ws.onopen = () => {
         console.log('Connected to realtime transcription');
