@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileText, Plus, Trash2 } from "lucide-react";
 import { useMiscellaneous } from "@/hooks/useMiscellaneous";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 
 const Miscellaneous = () => {
   const { records, loading, addRecord, deleteRecord } = useMiscellaneous();
@@ -126,7 +126,7 @@ const Miscellaneous = () => {
                         placeholder="Enter description"
                         required
                       />
-                      <VoiceRecorder 
+                      <RealtimeVoiceRecorder 
                         onTranscription={(text) => setFormData(prev => ({ ...prev, description: text }))}
                         placeholder="Click mic to record description in Telugu"
                       />
