@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 
 const Expenses = () => {
   const { expenses, loading, addExpense, deleteExpense } = useExpenses();
@@ -102,7 +102,7 @@ const Expenses = () => {
                         placeholder="Enter expense item"
                         required
                       />
-                      <VoiceRecorder 
+                      <RealtimeVoiceRecorder 
                         onTranscription={(text) => setFormData(prev => ({ ...prev, description: text }))}
                         placeholder="Click mic to record description in Telugu"
                       />

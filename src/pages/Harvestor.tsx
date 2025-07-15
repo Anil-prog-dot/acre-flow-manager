@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 import { Textarea } from "@/components/ui/textarea";
 
 const Harvestor = () => {
@@ -208,11 +208,11 @@ const Harvestor = () => {
                            placeholder="Enter customer name"
                            required
                          />
-                         <VoiceRecorder
-                           onTranscription={(text) => handleVoiceTranscription(text, 'customer_name')}
-                           placeholder="Click mic to record customer name in Telugu"
-                           className="mt-2"
-                         />
+                          <RealtimeVoiceRecorder
+                            onTranscription={(text) => handleVoiceTranscription(text, 'customer_name')}
+                            placeholder="Click mic to record customer name in Telugu"
+                            className="mt-2"
+                          />
                        </div>
                       <div>
                         <Label htmlFor="acres">No of Acres *</Label>
@@ -262,11 +262,11 @@ const Harvestor = () => {
                            placeholder="Enter description or use mic to record in Telugu"
                            className="min-h-[80px]"
                          />
-                         <VoiceRecorder
-                           onTranscription={(text) => handleVoiceTranscription(text, 'description')}
-                           placeholder="Click mic to record description in Telugu"
-                           className="mt-2"
-                         />
+                          <RealtimeVoiceRecorder
+                            onTranscription={(text) => handleVoiceTranscription(text, 'description')}
+                            placeholder="Click mic to record description in Telugu"
+                            className="mt-2"
+                          />
                        </div>
                       <div className="flex justify-end space-x-2">
                         <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>

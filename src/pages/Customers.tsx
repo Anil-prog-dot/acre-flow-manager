@@ -11,7 +11,7 @@ import { useCustomers } from "@/hooks/useCustomers";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useState as reactUseState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 
 const Customers = () => {
   const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
@@ -139,7 +139,7 @@ const Customers = () => {
                     placeholder="Enter customer name"
                     required
                   />
-                  <VoiceRecorder 
+                  <RealtimeVoiceRecorder 
                     onTranscription={(text) => setFormData(prev => ({ ...prev, name: text }))}
                     placeholder="Click mic to record customer name in Telugu"
                   />

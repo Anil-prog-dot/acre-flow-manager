@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useCustomerRecords } from "@/hooks/useCustomerRecords";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 import { Textarea } from "@/components/ui/textarea";
 
 const CustomerDetail = () => {
@@ -367,11 +367,11 @@ const CustomerDetail = () => {
                            placeholder="Enter description or use mic to record in Telugu"
                            className="min-h-[80px]"
                          />
-                         <VoiceRecorder
-                           onTranscription={(text) => handleVoiceTranscription(text, 'description')}
-                           placeholder="Click mic to record description in Telugu"
-                           className="mt-2"
-                         />
+                          <RealtimeVoiceRecorder
+                            onTranscription={(text) => handleVoiceTranscription(text, 'description')}
+                            placeholder="Click mic to record description in Telugu"
+                            className="mt-2"
+                          />
                        </div>
                       <div className="flex justify-end space-x-2">
                         <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>

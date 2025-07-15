@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTrailerRecords, TrailerRecord } from "@/hooks/useTrailerRecords";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
@@ -267,11 +267,11 @@ export default function Trailer() {
                          <FormControl>
                            <Input placeholder="Enter name" {...field} />
                          </FormControl>
-                         <VoiceRecorder
-                           onTranscription={(text) => handleVoiceTranscription(text, 'name')}
-                           placeholder="Click mic to record name in Telugu"
-                           className="mt-2"
-                         />
+                          <RealtimeVoiceRecorder
+                            onTranscription={(text) => handleVoiceTranscription(text, 'name')}
+                            placeholder="Click mic to record name in Telugu"
+                            className="mt-2"
+                          />
                          <FormMessage />
                        </FormItem>
                      )}
@@ -367,11 +367,11 @@ export default function Trailer() {
                            {...field}
                          />
                        </FormControl>
-                       <VoiceRecorder
-                         onTranscription={(text) => handleVoiceTranscription(text, 'description')}
-                         placeholder="Click mic to record description in Telugu"
-                         className="mt-2"
-                       />
+                        <RealtimeVoiceRecorder
+                          onTranscription={(text) => handleVoiceTranscription(text, 'description')}
+                          placeholder="Click mic to record description in Telugu"
+                          className="mt-2"
+                        />
                        <FormMessage />
                      </FormItem>
                    )}
