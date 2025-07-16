@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, Tractor, Receipt } from "lucide-react";
+import { BarChart3, TrendingUp, Tractor, Receipt } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useCustomers } from "@/hooks/useCustomers";
 import { useCustomerRecords } from "@/hooks/useCustomerRecords";
@@ -61,15 +62,17 @@ const Dashboard = () => {
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const miscellaneousTotal = miscellaneous.reduce((sum, record) => sum + (record.amount || 0), 0);
   const totalHarvestorAcres = harvestorData.reduce((sum, record) => sum + (record.acres || 0), 0);
-  const totalCustomers = customers.length;
+  
+  // Calculate profit (Total Revenue - Total Expenses)
+  const profit = totalRevenue - (totalExpenses + miscellaneousTotal);
 
   const stats = [
     {
-      title: "Total Customers",
-      value: totalCustomers.toString(),
-      description: "Active customers",
-      icon: Users,
-      color: "text-primary"
+      title: "Profit",
+      value: `₹${profit.toLocaleString()}`,
+      description: profit >= 0 ? "Net profit" : "Net loss",
+      icon: TrendingUp,
+      color: profit >= 0 ? "text-success" : "text-destructive"
     },
     {
       title: "Harvestor Acres",

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
@@ -125,8 +126,8 @@ export const RealtimeVoiceRecorder: React.FC<RealtimeVoiceRecorderProps> = ({
 
   const connectWebSocket = useCallback(() => {
     return new Promise<WebSocket>((resolve, reject) => {
-      const projectId = 'gnndcsxcpsauvyiutfbf';
-      const ws = new WebSocket(`wss://${projectId}.functions.supabase.co/functions/v1/realtime-transcription`);
+      // Fixed WebSocket URL for Supabase edge functions
+      const ws = new WebSocket('wss://gnndcsxcpsauvyiutfbf.supabase.co/functions/v1/realtime-transcription');
       
       const timeout = setTimeout(() => {
         ws.close();
