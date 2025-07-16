@@ -20,6 +20,14 @@ class AudioRecorder {
 
   async start() {
     try {
+      // Check for microphone permissions first
+      const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      console.log('Microphone permission status:', permissionStatus.state);
+      
+      if (permissionStatus.state === 'denied') {
+        throw new Error('Microphone permission denied. Please allow microphone access in your browser settings.');
+      }
+
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           sampleRate: 24000,
@@ -29,6 +37,8 @@ class AudioRecorder {
           autoGainControl: true
         }
       });
+      
+      console.log('Microphone access granted, setting up audio context');
       
       this.audioContext = new AudioContext({
         sampleRate: 24000,
@@ -44,8 +54,19 @@ class AudioRecorder {
       
       this.source.connect(this.processor);
       this.processor.connect(this.audioContext.destination);
+      
+      console.log('Audio recording setup complete');
     } catch (error) {
       console.error('Error accessing microphone:', error);
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          throw new Error('Microphone permission denied. Please allow microphone access and try again.');
+        } else if (error.name === 'NotFoundError') {
+          throw new Error('No microphone found. Please connect a microphone and try again.');
+        } else if (error.name === 'NotReadableError') {
+          throw new Error('Microphone is being used by another application. Please close other apps and try again.');
+        }
+      }
       throw error;
     }
   }
@@ -107,8 +128,14 @@ export const RealtimeVoiceRecorder: React.FC<RealtimeVoiceRecorderProps> = ({
       const projectId = 'gnndcsxcpsauvyiutfbf';
       const ws = new WebSocket(`wss://${projectId}.functions.supabase.co/functions/v1/realtime-transcription`);
       
+      const timeout = setTimeout(() => {
+        ws.close();
+        reject(new Error('WebSocket connection timeout. Please check your internet connection.'));
+      }, 10000); // 10 second timeout
+      
       ws.onopen = () => {
         console.log('Connected to realtime transcription');
+        clearTimeout(timeout);
         resolve(ws);
       };
       
@@ -142,11 +169,16 @@ export const RealtimeVoiceRecorder: React.FC<RealtimeVoiceRecorderProps> = ({
       
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        reject(error);
+        clearTimeout(timeout);
+        reject(new Error('Failed to connect to transcription service. Please check your internet connection.'));
       };
       
-      ws.onclose = () => {
-        console.log('WebSocket closed');
+      ws.onclose = (event) => {
+        console.log('WebSocket closed:', event.code, event.reason);
+        clearTimeout(timeout);
+        if (event.code !== 1000) { // 1000 is normal closure
+          reject(new Error(`WebSocket connection closed unexpectedly: ${event.reason || 'Unknown reason'}`));
+        }
       };
     });
   }, [onTranscription, toast]);
