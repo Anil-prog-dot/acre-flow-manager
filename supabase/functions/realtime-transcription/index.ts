@@ -43,41 +43,45 @@ serve(async (req) => {
 
         openaiWs.onopen = () => {
           console.log('Connected to OpenAI Realtime API')
-          
-          // Configure session for Telugu transcription
-          openaiWs?.send(JSON.stringify({
-            type: 'session.update',
-            session: {
-              modalities: ['text', 'audio'],
-              instructions: 'You are a helpful assistant that transcribes Telugu audio to Telugu text. Only return the transcribed text, nothing else.',
-              voice: 'alloy',
-              input_audio_format: 'pcm16',
-              output_audio_format: 'pcm16',
-              input_audio_transcription: {
-                model: 'whisper-1'
-              },
-              turn_detection: {
-                type: 'server_vad',
-                threshold: 0.5,
-                prefix_padding_ms: 300,
-                silence_duration_ms: 1000
-              },
-              temperature: 0.1,
-              max_response_output_tokens: 1000
-            }
-          }))
         }
 
         openaiWs.onmessage = (event) => {
           const data = JSON.parse(event.data)
           console.log('OpenAI message:', data.type)
           
+          // Configure session for Telugu transcription AFTER receiving session.created
+          if (data.type === 'session.created') {
+            console.log('Session created, configuring for Telugu transcription')
+            openaiWs?.send(JSON.stringify({
+              type: 'session.update',
+              session: {
+                modalities: ['text', 'audio'],
+                instructions: 'You are a helpful assistant that transcribes Telugu audio to Telugu text. Only return the transcribed text in Telugu script, nothing else.',
+                voice: 'alloy',
+                input_audio_format: 'pcm16',
+                output_audio_format: 'pcm16',
+                input_audio_transcription: {
+                  model: 'whisper-1'
+                },
+                turn_detection: {
+                  type: 'server_vad',
+                  threshold: 0.5,
+                  prefix_padding_ms: 300,
+                  silence_duration_ms: 1000
+                },
+                temperature: 0.1,
+                max_response_output_tokens: 1000
+              }
+            }))
+          }
+          
           // Forward relevant messages to client
           if (data.type === 'input_audio_buffer.speech_started' ||
               data.type === 'input_audio_buffer.speech_stopped' ||
               data.type === 'conversation.item.input_audio_transcription.completed' ||
               data.type === 'response.text.delta' ||
-              data.type === 'response.text.done') {
+              data.type === 'response.text.done' ||
+              data.type === 'session.updated') {
             socket.send(JSON.stringify(data))
           }
         }
