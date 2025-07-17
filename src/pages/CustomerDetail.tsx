@@ -195,45 +195,11 @@ const CustomerDetail = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
+            <CardTitle>Total Paid Amount</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p><strong>Email:</strong> {customer.email || 'Not provided'}</p>
-            <p className="flex items-center gap-2">
-              <strong>Phone:</strong> 
-              {editingPhone ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="tel"
-                    value={phoneValue}
-                    onChange={(e) => setPhoneValue(e.target.value)}
-                    placeholder="Enter phone number"
-                    className="w-40"
-                  />
-                  <Button size="sm" onClick={handlePhoneUpdate}>
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => {
-                    setEditingPhone(false);
-                    setPhoneValue(customer?.phone || "");
-                  }}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span>{customer.phone || 'Not provided'}</span>
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={() => setEditingPhone(true)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </p>
-            <p><strong>Location:</strong> {customer.location || 'Not provided'}</p>
+            <p><strong>Paid Records:</strong> {paidRecords.length}</p>
+            <p><strong>Paid Amount:</strong> ₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</p>
           </CardContent>
         </Card>
 
@@ -250,14 +216,11 @@ const CustomerDetail = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>Balance Amount</CardTitle>
           </CardHeader>
           <CardContent>
-            {records.length > 0 ? (
-              <p>Last service: {records[0].type} on {records[0].date}</p>
-            ) : (
-              <p>No recent activity</p>
-            )}
+            <p><strong>Active Records:</strong> {activeRecords.length}</p>
+            <p><strong>Balance Amount:</strong> ₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</p>
           </CardContent>
         </Card>
       </div>
@@ -346,33 +309,6 @@ const CustomerDetail = () => {
                           required
                         />
                       </div>
-                       <div>
-                         <Label htmlFor="phone">Phone Number (Optional)</Label>
-                         <Input
-                           id="phone"
-                           name="phone"
-                           type="tel"
-                           value={formData.phone}
-                           onChange={handleInputChange}
-                           placeholder="Enter phone number (optional)"
-                         />
-                       </div>
-                       <div>
-                         <Label htmlFor="description">Description (Optional)</Label>
-                         <Textarea
-                           id="description"
-                           name="description"
-                           value={formData.description}
-                           onChange={handleInputChange}
-                           placeholder="Enter description or use mic to record in Telugu"
-                           className="min-h-[80px]"
-                         />
-                          <RealtimeVoiceRecorder
-                            onTranscription={(text) => handleVoiceTranscription(text, 'description')}
-                            placeholder="Click mic to record description in Telugu"
-                            className="mt-2"
-                          />
-                       </div>
                       <div className="flex justify-end space-x-2">
                         <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                           Cancel
