@@ -289,18 +289,13 @@ export default function Trailer() {
                      control={form.control}
                      name="name"
                      render={({ field }) => (
-                       <FormItem>
-                         <FormLabel>Name</FormLabel>
-                         <FormControl>
-                           <Input placeholder="Enter name" {...field} />
-                         </FormControl>
-                          <RealtimeVoiceRecorder
-                            onTranscription={(text) => handleVoiceTranscription(text, 'name')}
-                            placeholder="Click mic to record name in Telugu"
-                            className="mt-2"
-                          />
-                         <FormMessage />
-                       </FormItem>
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                      )}
                    />
 
@@ -381,30 +376,7 @@ export default function Trailer() {
                    />
                  </div>
 
-                 <FormField
-                   control={form.control}
-                   name="description"
-                   render={({ field }) => (
-                     <FormItem>
-                       <FormLabel>Description (Optional)</FormLabel>
-                       <FormControl>
-                         <Textarea 
-                           placeholder="Enter description or use mic to record in Telugu"
-                           className="min-h-[80px]"
-                           {...field}
-                         />
-                       </FormControl>
-                        <RealtimeVoiceRecorder
-                          onTranscription={(text) => handleVoiceTranscription(text, 'description')}
-                          placeholder="Click mic to record description in Telugu"
-                          className="mt-2"
-                        />
-                       <FormMessage />
-                     </FormItem>
-                   )}
-                  />
-
-                 <div className="flex justify-end space-x-2">
+                  <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>

@@ -198,22 +198,17 @@ const Harvestor = () => {
                           required
                         />
                       </div>
-                       <div>
-                         <Label htmlFor="customer_name">Customer Name *</Label>
-                         <Input
-                           id="customer_name"
-                           name="customer_name"
-                           value={formData.customer_name}
-                           onChange={handleInputChange}
-                           placeholder="Enter customer name"
-                           required
-                         />
-                          <RealtimeVoiceRecorder
-                            onTranscription={(text) => handleVoiceTranscription(text, 'customer_name')}
-                            placeholder="Click mic to record customer name in Telugu"
-                            className="mt-2"
+                        <div>
+                          <Label htmlFor="customer_name">Customer Name *</Label>
+                          <Input
+                            id="customer_name"
+                            name="customer_name"
+                            value={formData.customer_name}
+                            onChange={handleInputChange}
+                            placeholder="Enter customer name"
+                            required
                           />
-                       </div>
+                        </div>
                       <div>
                         <Label htmlFor="acres">No of Acres *</Label>
                         <Input
@@ -252,23 +247,7 @@ const Harvestor = () => {
                            placeholder="Enter discount amount"
                          />
                        </div>
-                       <div>
-                         <Label htmlFor="description">Description (Optional)</Label>
-                         <Textarea
-                           id="description"
-                           name="description"
-                           value={formData.description}
-                           onChange={handleInputChange}
-                           placeholder="Enter description or use mic to record in Telugu"
-                           className="min-h-[80px]"
-                         />
-                          <RealtimeVoiceRecorder
-                            onTranscription={(text) => handleVoiceTranscription(text, 'description')}
-                            placeholder="Click mic to record description in Telugu"
-                            className="mt-2"
-                          />
-                       </div>
-                      <div className="flex justify-end space-x-2">
+                       <div className="flex justify-end space-x-2">
                         <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                           Cancel
                         </Button>

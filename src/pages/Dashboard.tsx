@@ -99,12 +99,19 @@ const Dashboard = () => {
 
   const chartData = [
     {
-      name: 'Financial Overview',
-      'Customer Revenue': customerRevenue,
-      'Harvestor Revenue': harvestorRevenue,
-      'Trailer Revenue': trailerRevenue,
-      'General Expenses': totalExpenses,
-      'Miscellaneous': miscellaneousTotal,
+      name: "Total Revenue",
+      value: totalRevenue,
+      fill: "hsl(var(--primary))"
+    },
+    {
+      name: "Total Expenses", 
+      value: totalExpenses + miscellaneousTotal,
+      fill: "hsl(var(--destructive))"
+    },
+    {
+      name: "Profit",
+      value: profit,
+      fill: profit >= 0 ? "hsl(var(--success))" : "hsl(var(--warning))"
     }
   ];
 
@@ -139,20 +146,18 @@ const Dashboard = () => {
           <CardDescription>Comprehensive view of all revenue sources vs expenses</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
-              <Legend />
-              <Bar dataKey="Customer Revenue" fill="hsl(var(--primary))" name="Customer Revenue" />
-              <Bar dataKey="Harvestor Revenue" fill="hsl(var(--success))" name="Harvestor Revenue" />
-              <Bar dataKey="Trailer Revenue" fill="hsl(var(--accent))" name="Trailer Revenue" />
-              <Bar dataKey="General Expenses" fill="hsl(var(--destructive))" name="General Expenses" />
-              <Bar dataKey="Miscellaneous" fill="hsl(var(--warning))" name="Miscellaneous" />
-            </BarChart>
-          </ResponsiveContainer>
+           <ResponsiveContainer width="100%" height={400}>
+             <BarChart data={chartData}>
+               <CartesianGrid strokeDasharray="3 3" />
+               <XAxis dataKey="name" />
+               <YAxis />
+               <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
+               <Legend />
+               {chartData.map((entry, index) => (
+                 <Bar key={index} dataKey="value" fill={entry.fill} />
+               ))}
+             </BarChart>
+           </ResponsiveContainer>
         </CardContent>
       </Card>
     </div>

@@ -130,20 +130,14 @@ const Customers = () => {
             <form onSubmit={handleAddCustomer} className="space-y-4">
               <div>
                 <Label htmlFor="name">Customer Name *</Label>
-                <div className="space-y-2">
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter customer name"
-                    required
-                  />
-                  <RealtimeVoiceRecorder 
-                    onTranscription={(text) => setFormData(prev => ({ ...prev, name: text }))}
-                    placeholder="Click mic to record customer name in Telugu"
-                  />
-                </div>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter customer name"
+                  required
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>

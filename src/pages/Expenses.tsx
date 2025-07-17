@@ -93,20 +93,14 @@ const Expenses = () => {
                 <form onSubmit={handleAddExpense} className="space-y-4">
                   <div>
                     <Label htmlFor="description">Item/Description *</Label>
-                    <div className="space-y-2">
-                      <Input
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        placeholder="Enter expense item"
-                        required
-                      />
-                      <RealtimeVoiceRecorder 
-                        onTranscription={(text) => setFormData(prev => ({ ...prev, description: text }))}
-                        placeholder="Click mic to record description in Telugu"
-                      />
-                    </div>
+                    <Input
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Enter expense item"
+                      required
+                    />
                   </div>
                   <div>
                     <Label htmlFor="date">Date *</Label>
