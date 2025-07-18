@@ -8,7 +8,75 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark theme by default with purple gradients */
+    /* Light theme with purple accents */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    /* Purple primary colors */
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 263 70% 65%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 263 70% 50%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 47 96% 53%;
+    --warning-foreground: 0 0% 9%;
+
+    /* Light theme gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(263 70% 50%), hsl(280 70% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(240 4% 98%), hsl(240 4% 96%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 4% 98%));
+    --gradient-purple-glow: linear-gradient(135deg, hsl(263 70% 50% / 0.05), hsl(280 70% 60% / 0.05));
+
+    /* Light theme shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(240 5% 10% / 0.05);
+    --shadow: 0 4px 6px -1px hsl(240 5% 10% / 0.1), 0 2px 4px -1px hsl(240 5% 10% / 0.06);
+    --shadow-md: 0 10px 15px -3px hsl(240 5% 10% / 0.1), 0 4px 6px -2px hsl(240 5% 10% / 0.05);
+    --shadow-lg: 0 20px 25px -5px hsl(240 5% 10% / 0.15), 0 10px 10px -5px hsl(240 5% 10% / 0.04);
+    --shadow-glow: 0 0 20px hsl(263 70% 50% / 0.2);
+
+    /* Transitions */
+    --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-colors: color 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
+
+    --radius: 0.75rem;
+
+    /* Sidebar light theme */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 263 70% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 263 70% 50%;
+  }
+
+  .dark {
+    /* Dark theme with purple gradients */
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
@@ -18,7 +86,7 @@ All colors MUST be HSL.
     --popover: 240 10% 8%;
     --popover-foreground: 0 0% 95%;
 
-    /* Purple primary colors */
+    /* Purple primary colors for dark */
     --primary: 263 70% 60%;
     --primary-foreground: 0 0% 98%;
     --primary-glow: 263 70% 75%;
@@ -45,26 +113,20 @@ All colors MUST be HSL.
     --warning: 47 96% 53%;
     --warning-foreground: 0 0% 9%;
 
-    /* Purple gradients */
+    /* Dark theme gradients */
     --gradient-primary: linear-gradient(135deg, hsl(263 70% 60%), hsl(280 70% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(240 5% 15%), hsl(240 5% 20%));
+    --gradient-secondary: linear-gradient(135deg, hsl(240 10% 3.9%), hsl(240 10% 5%));
     --gradient-card: linear-gradient(135deg, hsl(240 10% 6%), hsl(240 10% 8%));
     --gradient-purple-glow: linear-gradient(135deg, hsl(263 70% 60% / 0.1), hsl(280 70% 70% / 0.1));
 
-    /* Shadows with purple glow */
+    /* Dark theme shadows with purple glow */
     --shadow-sm: 0 1px 2px 0 hsl(263 70% 60% / 0.05);
     --shadow: 0 4px 6px -1px hsl(263 70% 60% / 0.1), 0 2px 4px -1px hsl(263 70% 60% / 0.06);
     --shadow-md: 0 10px 15px -3px hsl(263 70% 60% / 0.1), 0 4px 6px -2px hsl(263 70% 60% / 0.05);
     --shadow-lg: 0 20px 25px -5px hsl(263 70% 60% / 0.15), 0 10px 10px -5px hsl(263 70% 60% / 0.04);
     --shadow-glow: 0 0 20px hsl(263 70% 60% / 0.3);
 
-    /* Transitions */
-    --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-colors: color 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
-
-    --radius: 0.75rem;
-
-    /* Sidebar with purple theme */
+    /* Sidebar dark theme */
     --sidebar-background: 240 10% 4%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 263 70% 60%;
@@ -73,37 +135,6 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 5.9% 11%;
     --sidebar-ring: 263 70% 60%;
-  }
-
-  /* Light theme fallback */
-  .light {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 263 70% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 263 70% 50%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 263 70% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 263 70% 50%;
   }
 }
 
@@ -118,24 +149,6 @@ All colors MUST be HSL.
     background: var(--gradient-secondary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Professional hover effects */
-  .hover-glow:hover {
-    box-shadow: var(--shadow-glow);
-    transform: translateY(-2px);
-    transition: var(--transition-all);
-  }
-
-  .hover-scale:hover {
-    transform: scale(1.02);
-    transition: var(--transition-all);
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    transition: var(--transition-all);
   }
 
   /* Mobile optimizations */
