@@ -210,7 +210,7 @@ const CustomerDetail = () => {
           <CardContent className="space-y-2">
             <p><strong>Total Records:</strong> {records.length}</p>
             <p><strong>Total Acres:</strong> {totalAcres}</p>
-            <p><strong>Total Amount:</strong> ₹{totalAmount.toLocaleString()}</p>
+            {isAdmin && <p><strong>Total Amount:</strong> ₹{totalAmount.toLocaleString()}</p>}
           </CardContent>
         </Card>
 
@@ -333,14 +333,14 @@ const CustomerDetail = () => {
                 <TableHead>Total Amount</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Final Amount</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead>Point of Sale</TableHead>
                 <TableHead>Payment Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {displayRecords.map((record) => {
-                const finalAmount = record.total - record.discount;
+                const finalAmount = (record.acres * record.cost) - (record.discount || 0);
                 const paymentStatus = record.paid 
                   ? 'paid' 
                   : isOverdue(record.date) 
@@ -457,11 +457,9 @@ const CustomerDetail = () => {
                         </div>
                       )}
                     </TableCell>
-                     <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
+                      <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
                      <TableCell>
-                       <div className="max-w-[200px] truncate" title={record.description || ''}>
-                         {record.description || 'No description'}
-                       </div>
+                       <Badge variant="outline">Online</Badge>
                      </TableCell>
                      <TableCell>
                        <Badge 

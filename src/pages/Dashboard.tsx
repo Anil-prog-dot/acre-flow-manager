@@ -10,8 +10,10 @@ import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useMiscellaneous } from "@/hooks/useMiscellaneous";
 import { useTrailerRecords } from "@/hooks/useTrailerRecords";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Dashboard = () => {
+  const { isAdmin } = useAuth();
   const { customers, loading: customersLoading } = useCustomers();
   const { records: harvestorData, loading: harvestorLoading } = useHarvestorRecords();
   const { expenses, loading: expensesLoading } = useExpenses();
@@ -67,34 +69,27 @@ const Dashboard = () => {
   const profit = totalRevenue - (totalExpenses + miscellaneousTotal);
 
   const stats = [
-    {
-      title: "Profit",
-      value: `₹${profit.toLocaleString()}`,
-      description: profit >= 0 ? "Net profit" : "Net loss",
-      icon: TrendingUp,
-      color: profit >= 0 ? "text-success" : "text-destructive"
-    },
-    {
-      title: "Harvestor Acres",
-      value: totalHarvestorAcres.toString(),
-      description: "Total acres",
-      icon: Tractor,
-      color: "text-accent"
-    },
-    {
+    ...(isAdmin ? [{
       title: "Total Revenue",
       value: `₹${totalRevenue.toLocaleString()}`,
       description: "All revenue sources",
       icon: BarChart3,
       color: "text-success"
-    },
+    }] : []),
     {
       title: "Total Expenses",
       value: `₹${(totalExpenses + miscellaneousTotal).toLocaleString()}`,
       description: "All expenses",
       icon: Receipt,
       color: "text-warning"
-    }
+    },
+    ...(isAdmin ? [{
+      title: "Profit",
+      value: `₹${profit.toLocaleString()}`,
+      description: profit >= 0 ? "Net profit" : "Net loss",
+      icon: TrendingUp,
+      color: profit >= 0 ? "text-success" : "text-destructive"
+    }] : [])
   ];
 
   const chartData = [

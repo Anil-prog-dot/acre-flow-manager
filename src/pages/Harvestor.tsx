@@ -138,14 +138,40 @@ const Harvestor = () => {
           </CardContent>
         </Card>
 
+        {isAdmin && (
+          <Card className="mobile-card">
+            <CardHeader>
+              <CardTitle>Total Amount</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl md:text-2xl font-bold">₹{totalAmount.toLocaleString()}</div>
+              <p className="text-sm text-muted-foreground">
+                All operations
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="mobile-card">
           <CardHeader>
-            <CardTitle>Total Amount</CardTitle>
+            <CardTitle>Amount Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-2xl font-bold">₹{totalAmount.toLocaleString()}</div>
+            <div className="text-xl md:text-2xl font-bold">₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
             <p className="text-sm text-muted-foreground">
-              All operations
+              {paidRecords.length} paid records
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="mobile-card">
+          <CardHeader>
+            <CardTitle>Balance Amount</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+            <p className="text-sm text-muted-foreground">
+              {activeRecords.length} pending records
             </p>
           </CardContent>
         </Card>

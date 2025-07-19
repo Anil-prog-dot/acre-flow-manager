@@ -163,15 +163,17 @@ const Customers = () => {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalCustomerRevenue.toLocaleString()}</div>
-            <p className="text-sm text-muted-foreground">From all customer records</p>
-          </CardContent>
-        </Card>
+        {isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₹{totalCustomerRevenue.toLocaleString()}</div>
+              <p className="text-sm text-muted-foreground">From all customer records</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

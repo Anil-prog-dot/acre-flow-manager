@@ -190,14 +190,16 @@ export default function Trailer() {
   return (
     <div className="container mx-auto py-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Amount</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{trailerRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        {isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Amount</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₹{trailerRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+            </CardContent>
+          </Card>
+        )}
         <Card>
           <CardHeader>
             <CardTitle>Amount Paid</CardTitle>
