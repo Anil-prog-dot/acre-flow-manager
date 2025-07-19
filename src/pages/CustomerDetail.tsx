@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useCustomerRecords } from "@/hooks/useCustomerRecords";
@@ -24,6 +25,8 @@ const CustomerDetail = () => {
   const [customer, setCustomer] = useState<any>(null);
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneValue, setPhoneValue] = useState("");
+  const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
+  const [bulkDiscount, setBulkDiscount] = useState(0);
 
   useEffect(() => {
     if (customers.length > 0 && id) {
@@ -121,6 +124,41 @@ const CustomerDetail = () => {
       await updateCustomer(id, { phone: phoneValue });
       setEditingPhone(false);
     }
+  };
+
+  const handleSelectRecord = (recordId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedRecords([...selectedRecords, recordId]);
+    } else {
+      setSelectedRecords(selectedRecords.filter(id => id !== recordId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedRecords(activeRecords.map(record => record.id));
+    } else {
+      setSelectedRecords([]);
+    }
+  };
+
+  const getSelectedTotal = () => {
+    return selectedRecords.reduce((sum, recordId) => {
+      const record = records.find(r => r.id === recordId);
+      return record ? sum + ((record.acres * record.cost) - (record.discount || 0)) : sum;
+    }, 0);
+  };
+
+  const handleBulkPayment = async () => {
+    for (const recordId of selectedRecords) {
+      await updateRecord(recordId, { paid: true });
+    }
+    setSelectedRecords([]);
+    setBulkDiscount(0);
+    toast({
+      title: "Payment Processed",
+      description: `${selectedRecords.length} records marked as paid`,
+    });
   };
 
   const isOverdue = (dateString: string) => {
@@ -323,9 +361,69 @@ const CustomerDetail = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {!showPaidRecords && selectedRecords.length > 0 && (
+            <div className="mb-4 p-4 bg-muted rounded-lg space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold">Bulk Payment Summary</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSelectedRecords([])}
+                >
+                  Clear Selection
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <span><strong>Selected Records:</strong> {selectedRecords.length}</span>
+                <span><strong>Total Amount:</strong> ₹{getSelectedTotal().toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="bulk-discount">Discount:</Label>
+                  <Input
+                    id="bulk-discount"
+                    type="number"
+                    value={bulkDiscount}
+                    onChange={(e) => setBulkDiscount(Number(e.target.value))}
+                    className="w-20"
+                    min="0"
+                  />
+                </div>
+                <span><strong>Final Amount:</strong> ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}</span>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="w-full" disabled={selectedRecords.length === 0}>
+                    Process Bulk Payment
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Process Bulk Payment</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to mark {selectedRecords.length} record(s) as paid?
+                      Total amount: ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleBulkPayment}>
+                      Process Payment
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
+                {!showPaidRecords && (
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedRecords.length === activeRecords.length && activeRecords.length > 0}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Date</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>No of Acres</TableHead>
@@ -333,7 +431,6 @@ const CustomerDetail = () => {
                 <TableHead>Total Amount</TableHead>
                 <TableHead>Discount</TableHead>
                 <TableHead>Final Amount</TableHead>
-                <TableHead>Point of Sale</TableHead>
                 <TableHead>Payment Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -349,6 +446,14 @@ const CustomerDetail = () => {
                 
                 return (
                   <TableRow key={record.id}>
+                    {!showPaidRecords && (
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedRecords.includes(record.id)}
+                          onCheckedChange={(checked) => handleSelectRecord(record.id, checked as boolean)}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell>{record.date}</TableCell>
                     <TableCell>{record.type}</TableCell>
                     <TableCell>{record.acres}</TableCell>
@@ -458,9 +563,6 @@ const CustomerDetail = () => {
                       )}
                     </TableCell>
                       <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
-                     <TableCell>
-                       <Badge variant="outline">Online</Badge>
-                     </TableCell>
                      <TableCell>
                        <Badge 
                          variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
