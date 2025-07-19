@@ -8,18 +8,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useHarvestorRecords } from "@/hooks/useHarvestorRecords";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 const Harvestor = () => {
   const { records, loading, addRecord, updateRecord, deleteRecord } = useHarvestorRecords();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [editingRecord, setEditingRecord] = useState<string | null>(null);
-  const [editingDiscount, setEditingDiscount] = useState<string | null>(null);
+  const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
+  const [bulkDiscount, setBulkDiscount] = useState(0);
   const [formData, setFormData] = useState({
     date: "",
     customer_name: "",
@@ -100,16 +104,50 @@ const Harvestor = () => {
     setEditingRecord(null);
   };
 
-  const handleDiscountChange = async (recordId: string, discount: number) => {
-    const record = records.find(r => r.id === recordId);
-    if (record && updateRecord) {
-      const newTotal = (record.acres * record.cost) - discount;
-      await updateRecord(recordId, { 
-        discount: discount,
-        total: newTotal 
-      });
+  const handleSelectRecord = (recordId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedRecords([...selectedRecords, recordId]);
+    } else {
+      setSelectedRecords(selectedRecords.filter(id => id !== recordId));
     }
-    setEditingDiscount(null);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedRecords(activeRecords.map(record => record.id));
+    } else {
+      setSelectedRecords([]);
+    }
+  };
+
+  const getSelectedTotal = () => {
+    return selectedRecords.reduce((sum, recordId) => {
+      const record = records.find(r => r.id === recordId);
+      return record ? sum + ((record.acres * record.cost) - (record.discount || 0)) : sum;
+    }, 0);
+  };
+
+  const handleBulkPayment = async () => {
+    for (const recordId of selectedRecords) {
+      await updateRecord(recordId, { paid: true });
+    }
+    setSelectedRecords([]);
+    setBulkDiscount(0);
+    toast({
+      title: "Payment Processed",
+      description: `${selectedRecords.length} records marked as paid`,
+    });
+  };
+
+  const getPaymentStatus = (dateString: string) => {
+    const recordDate = new Date(dateString);
+    const today = new Date();
+    const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
+    const monthsDiff = daysDiff / 30;
+    
+    if (monthsDiff < 6) return 'success';
+    if (monthsDiff < 9) return 'warning';
+    return 'destructive';
   };
 
   const totalAmount = records.reduce((sum, record) => sum + record.total, 0);
@@ -287,15 +325,74 @@ const Harvestor = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {!showPaidRecords && selectedRecords.length > 0 && (
+            <div className="mb-4 p-4 bg-muted rounded-lg space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold">Bulk Payment Summary</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSelectedRecords([])}
+                >
+                  Clear Selection
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <span><strong>Selected Records:</strong> {selectedRecords.length}</span>
+                <span><strong>Total Amount:</strong> ₹{getSelectedTotal().toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="bulk-discount">Discount:</Label>
+                  <Input
+                    id="bulk-discount"
+                    type="number"
+                    value={bulkDiscount}
+                    onChange={(e) => setBulkDiscount(Number(e.target.value))}
+                    className="w-20"
+                    min="0"
+                  />
+                </div>
+                <span><strong>Final Amount:</strong> ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}</span>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="w-full" disabled={selectedRecords.length === 0}>
+                    Process Bulk Payment
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Process Bulk Payment</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to mark {selectedRecords.length} record(s) as paid?
+                      Total amount: ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleBulkPayment}>
+                      Process Payment
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
           <div className="mobile-table-container">
             <Table className="mobile-table">
               <TableHeader>
                 <TableRow>
+                  {!showPaidRecords && (
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedRecords.length === activeRecords.length && activeRecords.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
+                  )}
                   <TableHead>Date</TableHead>
                   <TableHead>Customer Name</TableHead>
                   <TableHead>Acres</TableHead>
                    <TableHead>Cost/Acre</TableHead>
-                   <TableHead>Discount</TableHead>
                    <TableHead>Total</TableHead>
                    <TableHead>Description</TableHead>
                    <TableHead>Payment Status</TableHead>
@@ -305,6 +402,14 @@ const Harvestor = () => {
               <TableBody>
                 {displayRecords.map((record) => (
                   <TableRow key={record.id}>
+                    {!showPaidRecords && (
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedRecords.includes(record.id)}
+                          onCheckedChange={(checked) => handleSelectRecord(record.id, checked as boolean)}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell>{record.date}</TableCell>
                     <TableCell className="font-medium">{record.customer_name}</TableCell>
                     <TableCell>{record.acres}</TableCell>
@@ -360,58 +465,6 @@ const Harvestor = () => {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>
-                      {editingDiscount === record.id && !record.paid ? (
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            defaultValue={record.discount || 0}
-                            className="w-20"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleDiscountChange(record.id, Number((e.target as HTMLInputElement).value));
-                              }
-                              if (e.key === 'Escape') {
-                                setEditingDiscount(null);
-                              }
-                            }}
-                          />
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => {
-                              const input = document.querySelector(`input[defaultValue="${record.discount || 0}"]`) as HTMLInputElement;
-                              if (input) {
-                                handleDiscountChange(record.id, Number(input.value));
-                              }
-                            }}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => setEditingDiscount(null)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <span>₹{record.discount || 0}</span>
-                          {!record.paid && (
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => setEditingDiscount(record.id)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                     </TableCell>
                      <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
                      <TableCell>
                        <div className="max-w-[200px] truncate" title={record.description || ''}>
@@ -420,9 +473,14 @@ const Harvestor = () => {
                      </TableCell>
                      <TableCell>
                       <Badge 
-                        variant={record.paid ? 'default' : 'secondary'}
+                        variant={
+                          record.paid ? 'default' : 
+                          getPaymentStatus(record.date) === 'success' ? 'secondary' :
+                          getPaymentStatus(record.date) === 'warning' ? 'outline' : 
+                          'destructive'
+                        }
                       >
-                        {record.paid ? 'paid' : 'pending'}
+                        {record.paid ? 'Paid' : 'Pending'}
                       </Badge>
                     </TableCell>
                     <TableCell>

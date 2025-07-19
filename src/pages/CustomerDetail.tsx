@@ -161,11 +161,15 @@ const CustomerDetail = () => {
     });
   };
 
-  const isOverdue = (dateString: string) => {
+  const getPaymentStatus = (dateString: string) => {
     const recordDate = new Date(dateString);
     const today = new Date();
     const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
-    return daysDiff > 30; // Consider overdue if more than 30 days
+    const monthsDiff = daysDiff / 30;
+    
+    if (monthsDiff < 6) return 'success';
+    if (monthsDiff < 9) return 'warning';
+    return 'destructive';
   };
 
   if (customersLoading || recordsLoading) {
@@ -429,7 +433,6 @@ const CustomerDetail = () => {
                 <TableHead>No of Acres</TableHead>
                 <TableHead>Cost per Acre</TableHead>
                 <TableHead>Total Amount</TableHead>
-                <TableHead>Discount</TableHead>
                 <TableHead>Final Amount</TableHead>
                 <TableHead>Payment Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -438,11 +441,6 @@ const CustomerDetail = () => {
             <TableBody>
               {displayRecords.map((record) => {
                 const finalAmount = (record.acres * record.cost) - (record.discount || 0);
-                const paymentStatus = record.paid 
-                  ? 'paid' 
-                  : isOverdue(record.date) 
-                    ? 'overdue' 
-                    : 'pending';
                 
                 return (
                   <TableRow key={record.id}>
@@ -510,65 +508,16 @@ const CustomerDetail = () => {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
-                    <TableCell>
-                      {editingDiscount === record.id && !record.paid ? (
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            defaultValue={record.discount}
-                            className="w-20"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleDiscountChange(record.id, Number((e.target as HTMLInputElement).value));
-                              }
-                              if (e.key === 'Escape') {
-                                setEditingDiscount(null);
-                              }
-                            }}
-                          />
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => {
-                              const input = document.querySelector(`input[defaultValue="${record.discount}"]`) as HTMLInputElement;
-                              if (input) {
-                                handleDiscountChange(record.id, Number(input.value));
-                              }
-                            }}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => setEditingDiscount(null)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <span>₹{record.discount}</span>
-                          {!record.paid && (
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => setEditingDiscount(record.id)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
                       <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
-                     <TableCell>
-                       <Badge 
-                         variant={paymentStatus === 'paid' ? 'default' : paymentStatus === 'overdue' ? 'destructive' : 'secondary'}
-                       >
-                         {paymentStatus}
-                       </Badge>
+                    <TableCell>
+                      <Badge variant={
+                        record.paid ? 'default' : 
+                        getPaymentStatus(record.date) === 'success' ? 'secondary' :
+                        getPaymentStatus(record.date) === 'warning' ? 'outline' : 
+                        'destructive'
+                      }>
+                        {record.paid ? 'Paid' : 'Pending'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-1">

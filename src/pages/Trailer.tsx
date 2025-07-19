@@ -11,15 +11,18 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useTrailerRecords, TrailerRecord } from "@/hooks/useTrailerRecords";
 import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   date: z.date({
@@ -40,8 +43,11 @@ export default function Trailer() {
   const [editingRecord, setEditingRecord] = useState<TrailerRecord | null>(null);
   const [editingField, setEditingField] = useState<{ id: string; field: string } | null>(null);
   const [editValues, setEditValues] = useState<{ [key: string]: number }>({});
+  const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
+  const [bulkDiscount, setBulkDiscount] = useState(0);
   const { trailerRecords, addTrailerRecord, updateTrailerRecord, deleteTrailerRecord, markPaid, isAdding } = useTrailerRecords();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -126,6 +132,52 @@ export default function Trailer() {
 
   const handleCancelEdit = () => {
     setEditingField(null);
+  };
+
+  const handleSelectRecord = (recordId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedRecords([...selectedRecords, recordId]);
+    } else {
+      setSelectedRecords(selectedRecords.filter(id => id !== recordId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedRecords(activeRecords.map(record => record.id));
+    } else {
+      setSelectedRecords([]);
+    }
+  };
+
+  const getSelectedTotal = () => {
+    return selectedRecords.reduce((sum, recordId) => {
+      const record = trailerRecords.find(r => r.id === recordId);
+      return record ? sum + ((record.no_of_trips * record.cost) - (record.discount || 0)) : sum;
+    }, 0);
+  };
+
+  const handleBulkPayment = async () => {
+    for (const recordId of selectedRecords) {
+      markPaid({ id: recordId, paid: true });
+    }
+    setSelectedRecords([]);
+    setBulkDiscount(0);
+    toast({
+      title: "Payment Processed",
+      description: `${selectedRecords.length} records marked as paid`,
+    });
+  };
+
+  const getPaymentStatus = (dateString: string) => {
+    const recordDate = new Date(dateString);
+    const today = new Date();
+    const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
+    const monthsDiff = daysDiff / 30;
+    
+    if (monthsDiff < 6) return 'success';
+    if (monthsDiff < 9) return 'warning';
+    return 'destructive';
   };
 
   const formatCurrency = (amount: number) => {
@@ -405,15 +457,72 @@ export default function Trailer() {
               <CardDescription>Records that haven't been paid yet</CardDescription>
             </CardHeader>
             <CardContent>
+              {selectedRecords.length > 0 && (
+                <div className="mb-4 p-4 bg-muted rounded-lg space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold">Bulk Payment Summary</h3>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setSelectedRecords([])}
+                    >
+                      Clear Selection
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <span><strong>Selected Records:</strong> {selectedRecords.length}</span>
+                    <span><strong>Total Amount:</strong> ₹{getSelectedTotal().toLocaleString()}</span>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="bulk-discount">Discount:</Label>
+                      <Input
+                        id="bulk-discount"
+                        type="number"
+                        value={bulkDiscount}
+                        onChange={(e) => setBulkDiscount(Number(e.target.value))}
+                        className="w-20"
+                        min="0"
+                      />
+                    </div>
+                    <span><strong>Final Amount:</strong> ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}</span>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button className="w-full" disabled={selectedRecords.length === 0}>
+                        Process Bulk Payment
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Process Bulk Payment</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to mark {selectedRecords.length} record(s) as paid?
+                          Total amount: ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleBulkPayment}>
+                          Process Payment
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedRecords.length === activeRecords.length && activeRecords.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Trips</TableHead>
                     <TableHead>Cost</TableHead>
-                     <TableHead>Discount</TableHead>
                      <TableHead>Total</TableHead>
                      <TableHead>Description</TableHead>
                      <TableHead>Status</TableHead>
@@ -423,12 +532,17 @@ export default function Trailer() {
                 <TableBody>
                   {activeRecords.map((record) => (
                     <TableRow key={record.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedRecords.includes(record.id)}
+                          onCheckedChange={(checked) => handleSelectRecord(record.id, checked as boolean)}
+                        />
+                      </TableCell>
                       <TableCell>{format(new Date(record.date), "MMM dd, yyyy")}</TableCell>
                       <TableCell>{record.name}</TableCell>
                       <TableCell>{record.type}</TableCell>
                       <TableCell>{record.no_of_trips}</TableCell>
                       <TableCell>{renderEditableCell(record, 'cost', record.cost)}</TableCell>
-                       <TableCell>{renderEditableCell(record, 'discount', record.discount)}</TableCell>
                        <TableCell>{formatCurrency(record.total)}</TableCell>
                        <TableCell>
                          <div className="max-w-[200px] truncate" title={record.description || ''}>
@@ -436,7 +550,13 @@ export default function Trailer() {
                          </div>
                        </TableCell>
                        <TableCell>
-                         <Badge variant="secondary">Unpaid</Badge>
+                         <Badge variant={
+                           getPaymentStatus(record.date) === 'success' ? 'secondary' :
+                           getPaymentStatus(record.date) === 'warning' ? 'outline' : 
+                           'destructive'
+                         }>
+                           Unpaid
+                         </Badge>
                        </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
@@ -509,7 +629,7 @@ export default function Trailer() {
                     <TableHead>Type</TableHead>
                     <TableHead>Trips</TableHead>
                     <TableHead>Cost</TableHead>
-                     <TableHead>Discount</TableHead>
+                     
                      <TableHead>Total</TableHead>
                      <TableHead>Description</TableHead>
                      <TableHead>Status</TableHead>
@@ -518,22 +638,21 @@ export default function Trailer() {
                 </TableHeader>
                 <TableBody>
                   {paidRecords.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell>{format(new Date(record.date), "MMM dd, yyyy")}</TableCell>
-                      <TableCell>{record.name}</TableCell>
-                      <TableCell>{record.type}</TableCell>
-                      <TableCell>{record.no_of_trips}</TableCell>
-                      <TableCell>{formatCurrency(record.cost)}</TableCell>
-                      <TableCell>{formatCurrency(record.discount)}</TableCell>
-                       <TableCell>{formatCurrency(record.total)}</TableCell>
-                       <TableCell>
-                         <div className="max-w-[200px] truncate" title={record.description || ''}>
-                           {record.description || 'No description'}
-                         </div>
-                       </TableCell>
-                       <TableCell>
-                         <Badge variant="default">Paid</Badge>
-                       </TableCell>
+                     <TableRow key={record.id}>
+                       <TableCell>{format(new Date(record.date), "MMM dd, yyyy")}</TableCell>
+                       <TableCell>{record.name}</TableCell>
+                       <TableCell>{record.type}</TableCell>
+                       <TableCell>{record.no_of_trips}</TableCell>
+                        <TableCell>{formatCurrency(record.cost)}</TableCell>
+                         <TableCell>{formatCurrency(record.total)}</TableCell>
+                        <TableCell>
+                          <div className="max-w-[200px] truncate" title={record.description || ''}>
+                            {record.description || 'No description'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="default">Paid</Badge>
+                        </TableCell>
                        <TableCell>
                          <div className="flex space-x-2">
                            {isAdmin && (
