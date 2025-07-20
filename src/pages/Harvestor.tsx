@@ -145,8 +145,8 @@ const Harvestor = () => {
     const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
     const monthsDiff = daysDiff / 30;
     
-    if (monthsDiff < 6) return 'success';
-    if (monthsDiff < 9) return 'warning';
+    if (monthsDiff < 6) return 'default';
+    if (monthsDiff < 9) return 'secondary';
     return 'destructive';
   };
 
@@ -154,7 +154,9 @@ const Harvestor = () => {
   const totalAcres = records.reduce((sum, record) => sum + record.acres, 0);
   const paidRecords = records.filter(record => record.paid);
   const activeRecords = records.filter(record => !record.paid);
-  const displayRecords = showPaidRecords ? paidRecords : activeRecords;
+  const displayRecords = showPaidRecords ? 
+    [...paidRecords].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : 
+    [...activeRecords].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="space-y-6">
@@ -475,9 +477,15 @@ const Harvestor = () => {
                       <Badge 
                         variant={
                           record.paid ? 'default' : 
-                          getPaymentStatus(record.date) === 'success' ? 'secondary' :
-                          getPaymentStatus(record.date) === 'warning' ? 'outline' : 
+                          getPaymentStatus(record.date) === 'default' ? 'secondary' :
+                          getPaymentStatus(record.date) === 'secondary' ? 'outline' : 
                           'destructive'
+                        }
+                        className={
+                          record.paid ? '' :
+                          getPaymentStatus(record.date) === 'default' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                          getPaymentStatus(record.date) === 'secondary' ? 'bg-orange-100 text-orange-800 hover:bg-orange-100' :
+                          'bg-red-100 text-red-800 hover:bg-red-100'
                         }
                       >
                         {record.paid ? 'Paid' : 'Pending'}

@@ -66,8 +66,8 @@ export default function Trailer() {
     form.setValue(field as keyof FormData, text);
   };
 
-  const activeRecords = trailerRecords.filter(record => !record.paid);
-  const paidRecords = trailerRecords.filter(record => record.paid);
+  const activeRecords = [...trailerRecords.filter(record => !record.paid)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const paidRecords = [...trailerRecords.filter(record => record.paid)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const onSubmit = (data: FormData) => {
     const total = data.no_of_trips * data.cost - (data.discount || 0);
@@ -175,8 +175,8 @@ export default function Trailer() {
     const daysDiff = Math.floor((today.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
     const monthsDiff = daysDiff / 30;
     
-    if (monthsDiff < 6) return 'success';
-    if (monthsDiff < 9) return 'warning';
+    if (monthsDiff < 6) return 'default';
+    if (monthsDiff < 9) return 'secondary';
     return 'destructive';
   };
 
@@ -549,15 +549,22 @@ export default function Trailer() {
                            {record.description || 'No description'}
                          </div>
                        </TableCell>
-                       <TableCell>
-                         <Badge variant={
-                           getPaymentStatus(record.date) === 'success' ? 'secondary' :
-                           getPaymentStatus(record.date) === 'warning' ? 'outline' : 
-                           'destructive'
-                         }>
-                           Unpaid
-                         </Badge>
-                       </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={
+                              getPaymentStatus(record.date) === 'default' ? 'secondary' :
+                              getPaymentStatus(record.date) === 'secondary' ? 'outline' : 
+                              'destructive'
+                            }
+                            className={
+                              getPaymentStatus(record.date) === 'default' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                              getPaymentStatus(record.date) === 'secondary' ? 'bg-orange-100 text-orange-800 hover:bg-orange-100' :
+                              'bg-red-100 text-red-800 hover:bg-red-100'
+                            }
+                          >
+                            Unpaid
+                          </Badge>
+                        </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
