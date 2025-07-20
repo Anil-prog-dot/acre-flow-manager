@@ -227,6 +227,37 @@ const CustomerDetail = () => {
   return (
     <div className="flex gap-6">
       <div className="flex-1 space-y-6">
+        {/* Graph positioned at top right */}
+        <div className="absolute top-4 right-4 w-80 h-60">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Amount Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total Amount</span>
+                  <span className="font-semibold text-lg">₹{totalAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Balance Amount</span>
+                  <span className="font-semibold text-lg text-destructive">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-3">
+                  <div 
+                    className="bg-primary h-3 rounded-full transition-all duration-300" 
+                    style={{ 
+                      width: `${totalAmount > 0 ? ((totalAmount - activeRecords.reduce((sum, record) => sum + record.total, 0)) / totalAmount) * 100 : 0}%` 
+                    }}
+                  ></div>
+                </div>
+                <div className="text-xs text-muted-foreground text-center">
+                  {totalAmount > 0 ? Math.round(((totalAmount - activeRecords.reduce((sum, record) => sum + record.total, 0)) / totalAmount) * 100) : 0}% Paid
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         <div className="flex items-center space-x-4">
           <Link to="/customers">
             <Button variant="outline" size="sm">
@@ -372,58 +403,6 @@ const CustomerDetail = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {!showPaidRecords && selectedRecords.length > 0 && (
-              <div className="mb-4 p-4 bg-muted rounded-lg space-y-3">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold">Bulk Payment Summary</h3>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setSelectedRecords([])}
-                  >
-                    Clear Selection
-                  </Button>
-                </div>
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <span><strong>Selected Records:</strong> {selectedRecords.length}</span>
-                  <span><strong>Total Amount:</strong> ₹{getSelectedTotal().toLocaleString()}</span>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="bulk-discount">Discount:</Label>
-                    <Input
-                      id="bulk-discount"
-                      type="number"
-                      value={bulkDiscount}
-                      onChange={(e) => setBulkDiscount(Number(e.target.value))}
-                      className="w-20"
-                      min="0"
-                    />
-                  </div>
-                  <span><strong>Final Amount:</strong> ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}</span>
-                </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button className="w-full" disabled={selectedRecords.length === 0}>
-                      Process Bulk Payment
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Process Bulk Payment</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to mark {selectedRecords.length} record(s) as paid?
-                        Total amount: ₹{(getSelectedTotal() - bulkDiscount).toLocaleString()}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleBulkPayment}>
-                        Process Payment
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            )}
             <Table>
               <TableHeader>
                 <TableRow>
@@ -440,7 +419,6 @@ const CustomerDetail = () => {
                   <TableHead>No of Acres</TableHead>
                   <TableHead>Cost per Acre</TableHead>
                   <TableHead>Total Amount</TableHead>
-                  <TableHead>Final Amount</TableHead>
                   <TableHead>Payment Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -515,7 +493,6 @@ const CustomerDetail = () => {
                         )}
                       </TableCell>
                       <TableCell className="font-medium">₹{record.total.toLocaleString()}</TableCell>
-                      <TableCell className="font-bold">₹{finalAmount.toLocaleString()}</TableCell>
                       <TableCell>
                       <Badge 
                         variant={getPaymentStatus(record.date)}
@@ -613,77 +590,75 @@ const CustomerDetail = () => {
         </Card>
       </div>
       
-      {/* Right Sidebar */}
+      {/* Right Sidebar for Bulk Payment */}
       {selectedRecords.length > 0 && (
         <div className="w-80 space-y-4">
-          {/* Chart Section */}
+          {/* Bulk Payment Summary */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Payment Overview</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg">Bulk Payment Summary</CardTitle>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSelectedRecords([])}
+                >
+                  Clear
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Amount</span>
-                  <span className="font-semibold">₹{selectedTotalAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Discount</span>
-                  <span className="font-semibold text-orange-600">₹{bulkDiscount.toLocaleString()}</span>
-                </div>
-                <div className="border-t pt-2">
+                <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Balance Amount</span>
-                    <span className="font-bold text-lg">₹{balanceAmount.toLocaleString()}</span>
+                    <span className="text-sm text-muted-foreground">Selected Records</span>
+                    <span className="font-semibold">{selectedRecords.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Total Amount</span>
+                    <span className="font-semibold">₹{selectedTotalAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="bulk-discount" className="text-sm">Discount</Label>
+                    <Input
+                      id="bulk-discount"
+                      type="number"
+                      value={bulkDiscount}
+                      onChange={(e) => setBulkDiscount(Number(e.target.value))}
+                      className="w-20"
+                      min="0"
+                    />
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Balance Amount</span>
+                      <span className="font-bold text-lg">₹{balanceAmount.toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Visual representation */}
-                <div className="space-y-2">
-                  <div className="h-3 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary rounded-full transition-all duration-300" 
-                      style={{ width: `${selectedTotalAmount > 0 ? (balanceAmount / selectedTotalAmount) * 100 : 0}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>₹0</span>
-                    <span>₹{selectedTotalAmount.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Selected Records */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Selected Records ({selectedRecords.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {selectedRecordsData.map((record) => (
-                  <div key={record.id} className="p-3 border rounded-lg space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div className="text-sm font-medium">{record.type}</div>
-                      <Badge 
-                        variant={getPaymentStatus(record.date)}
-                        className={
-                          getPaymentStatus(record.date) === 'default' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
-                          getPaymentStatus(record.date) === 'secondary' ? 'bg-orange-100 text-orange-800 hover:bg-orange-100' :
-                          'bg-red-100 text-red-800 hover:bg-red-100'
-                        }
-                      >
-                        {record.paid ? "Paid" : "Unpaid"}
-                      </Badge>
-                    </div>
-                    <div className="text-xs text-muted-foreground">{record.date}</div>
-                    <div className="flex justify-between text-sm">
-                      <span>{record.acres} acres × ₹{record.cost}</span>
-                      <span className="font-medium">₹{((record.acres * record.cost) - (record.discount || 0)).toLocaleString()}</span>
-                    </div>
-                  </div>
-                ))}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button className="w-full" disabled={selectedRecords.length === 0}>
+                      Process Bulk Payment
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Process Bulk Payment</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to mark {selectedRecords.length} record(s) as paid?
+                        Total amount: ₹{balanceAmount.toLocaleString()}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleBulkPayment}>
+                        Process Payment
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>
