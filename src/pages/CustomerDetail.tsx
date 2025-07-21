@@ -258,52 +258,6 @@ const CustomerDetail = () => {
             </CardContent>
           </Card>
         </div>
-        
-        {/* Bulk Payment Summary moved below graph */}
-        {selectedRecords.length > 0 && (
-          <div className="absolute top-72 right-4 w-80">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Bulk Payment Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Selected Records:</span>
-                    <span>{selectedRecords.length}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Selected Amount:</span>
-                    <span>₹{selectedTotalAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <Label htmlFor="bulk-discount">Discount:</Label>
-                    <Input
-                      id="bulk-discount"
-                      type="number"
-                      value={bulkDiscount}
-                      onChange={(e) => setBulkDiscount(Number(e.target.value))}
-                      className="w-20 h-8 text-xs"
-                      min="0"
-                      max={selectedTotalAmount}
-                    />
-                  </div>
-                  <div className="flex justify-between font-semibold text-sm border-t pt-2">
-                    <span>Final Amount:</span>
-                    <span>₹{Math.max(0, selectedTotalAmount - bulkDiscount).toLocaleString()}</span>
-                  </div>
-                </div>
-                <Button 
-                  onClick={handleBulkPayment}
-                  className="w-full"
-                  size="sm"
-                >
-                  Process Payment
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
         <div className="flex items-center space-x-4">
           <Link to="/customers">
             <Button variant="outline" size="sm">
