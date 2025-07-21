@@ -225,7 +225,7 @@ const CustomerDetail = () => {
   const balanceAmount = selectedTotalAmount - bulkDiscount;
 
   return (
-    <div className="flex gap-6">
+    <div className="space-y-6">
       <div className="flex-1 space-y-6">
         {/* Graph positioned at top right */}
         <div className="absolute top-4 right-4 w-80 h-60">
@@ -258,6 +258,52 @@ const CustomerDetail = () => {
             </CardContent>
           </Card>
         </div>
+        
+        {/* Bulk Payment Summary below graph */}
+        {selectedRecords.length > 0 && (
+          <div className="absolute top-72 right-4 w-80">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Bulk Payment Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Selected Records:</span>
+                    <span>{selectedRecords.length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Selected Amount:</span>
+                    <span>₹{selectedTotalAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <Label htmlFor="bulk-discount">Discount:</Label>
+                    <Input
+                      id="bulk-discount"
+                      type="number"
+                      value={bulkDiscount}
+                      onChange={(e) => setBulkDiscount(Number(e.target.value))}
+                      className="w-20 h-8 text-xs"
+                      min="0"
+                      max={selectedTotalAmount}
+                    />
+                  </div>
+                  <div className="flex justify-between font-semibold text-sm border-t pt-2">
+                    <span>Final Amount:</span>
+                    <span>₹{Math.max(0, selectedTotalAmount - bulkDiscount).toLocaleString()}</span>
+                  </div>
+                </div>
+                <Button 
+                  onClick={handleBulkPayment}
+                  className="w-full"
+                  size="sm"
+                >
+                  Process Payment
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
         <div className="flex items-center space-x-4">
           <Link to="/customers">
             <Button variant="outline" size="sm">
@@ -589,81 +635,6 @@ const CustomerDetail = () => {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Right Sidebar for Bulk Payment */}
-      {selectedRecords.length > 0 && (
-        <div className="w-80 space-y-4">
-          {/* Bulk Payment Summary */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Bulk Payment Summary</CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setSelectedRecords([])}
-                >
-                  Clear
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Selected Records</span>
-                    <span className="font-semibold">{selectedRecords.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total Amount</span>
-                    <span className="font-semibold">₹{selectedTotalAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="bulk-discount" className="text-sm">Discount</Label>
-                    <Input
-                      id="bulk-discount"
-                      type="number"
-                      value={bulkDiscount}
-                      onChange={(e) => setBulkDiscount(Number(e.target.value))}
-                      className="w-20"
-                      min="0"
-                    />
-                  </div>
-                  <div className="border-t pt-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Balance Amount</span>
-                      <span className="font-bold text-lg">₹{balanceAmount.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button className="w-full" disabled={selectedRecords.length === 0}>
-                      Process Bulk Payment
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Process Bulk Payment</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to mark {selectedRecords.length} record(s) as paid?
-                        Total amount: ₹{balanceAmount.toLocaleString()}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleBulkPayment}>
-                        Process Payment
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };
