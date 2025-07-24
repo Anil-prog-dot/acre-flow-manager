@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, TrendingUp, Tractor, Receipt } from "lucide-react";
+import { BarChart3, TrendingUp, Tractor, Receipt, Clock, Activity } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useCustomers } from "@/hooks/useCustomers";
 import { useCustomerRecords } from "@/hooks/useCustomerRecords";
@@ -23,6 +23,7 @@ const Dashboard = () => {
   // Get all customer records for revenue calculation
   const [allCustomerRecords, setAllCustomerRecords] = useState<any[]>([]);
   const [customerRecordsLoading, setCustomerRecordsLoading] = useState(true);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchAllCustomerRecords = async () => {
@@ -40,7 +41,58 @@ const Dashboard = () => {
       }
     };
 
+    const fetchRecentActivities = async () => {
+      try {
+        // Fetch recent activities from all tables
+        const [customerRecords, harvestorRecords, expenses, miscRecords, trailerRecords] = await Promise.all([
+          supabase.from('customer_records').select('*, customers(name)').order('created_at', { ascending: false }).limit(3),
+          supabase.from('harvestor_records').select('*').order('created_at', { ascending: false }).limit(3),
+          supabase.from('expenses').select('*').order('created_at', { ascending: false }).limit(2),
+          supabase.from('miscellaneous').select('*').order('created_at', { ascending: false }).limit(1),
+          supabase.from('trailer_records').select('*').order('created_at', { ascending: false }).limit(1)
+        ]);
+
+        const activities = [
+          ...(customerRecords.data?.map(record => ({
+            type: 'Customer Record',
+            description: `${record.customers?.name || 'Customer'} - ₹${record.total}`,
+            date: record.created_at,
+            icon: 'customer'
+          })) || []),
+          ...(harvestorRecords.data?.map(record => ({
+            type: 'Harvestor Record',
+            description: `${record.customer_name} - ${record.acres} acres`,
+            date: record.created_at,
+            icon: 'harvestor'
+          })) || []),
+          ...(expenses.data?.map(expense => ({
+            type: 'Expense',
+            description: `${expense.description} - ₹${expense.amount}`,
+            date: expense.created_at,
+            icon: 'expense'
+          })) || []),
+          ...(miscRecords.data?.map(record => ({
+            type: 'Miscellaneous',
+            description: `${record.description} - ₹${record.amount}`,
+            date: record.created_at,
+            icon: 'misc'
+          })) || []),
+          ...(trailerRecords.data?.map(record => ({
+            type: 'Trailer Record',
+            description: `${record.name} - ${record.no_of_trips} trips`,
+            date: record.created_at,
+            icon: 'trailer'
+          })) || [])
+        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
+
+        setRecentActivities(activities);
+      } catch (error) {
+        console.error('Error fetching recent activities:', error);
+      }
+    };
+
     fetchAllCustomerRecords();
+    fetchRecentActivities();
   }, []);
 
   const loading = customersLoading || harvestorLoading || expensesLoading || miscLoading || trailerLoading || customerRecordsLoading;
@@ -135,26 +187,63 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Revenue vs Expenses Breakdown</CardTitle>
-          <CardDescription>Comprehensive view of all revenue sources vs expenses</CardDescription>
-        </CardHeader>
-        <CardContent>
-           <ResponsiveContainer width="100%" height={400}>
-             <BarChart data={chartData}>
-               <CartesianGrid strokeDasharray="3 3" />
-               <XAxis dataKey="name" />
-               <YAxis />
-               <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
-               <Legend />
-               {chartData.map((entry, index) => (
-                 <Bar key={index} dataKey="value" fill={entry.fill} />
-               ))}
-             </BarChart>
-           </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue vs Expenses Breakdown</CardTitle>
+            <CardDescription>Comprehensive view of all revenue sources vs expenses</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <ResponsiveContainer width="100%" height={400}>
+               <BarChart data={chartData}>
+                 <CartesianGrid strokeDasharray="3 3" />
+                 <XAxis dataKey="name" />
+                 <YAxis />
+                 <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
+                 <Legend />
+                 {chartData.map((entry, index) => (
+                   <Bar key={index} dataKey="value" fill={entry.fill} />
+                 ))}
+               </BarChart>
+             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription>Last 10 activities from all sections</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {recentActivities.length > 0 ? (
+              recentActivities.map((activity, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="mt-1">
+                    {activity.icon === 'customer' && <BarChart3 className="h-4 w-4 text-primary" />}
+                    {activity.icon === 'harvestor' && <Tractor className="h-4 w-4 text-success" />}
+                    {activity.icon === 'expense' && <Receipt className="h-4 w-4 text-destructive" />}
+                    {activity.icon === 'misc' && <Activity className="h-4 w-4 text-warning" />}
+                    {activity.icon === 'trailer' && <TrendingUp className="h-4 w-4 text-info" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{activity.type}</p>
+                    <p className="text-xs text-muted-foreground">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                      <Clock className="h-3 w-3" />
+                      {new Date(activity.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No recent activities found</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

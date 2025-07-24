@@ -162,8 +162,8 @@ All colors MUST be HSL.
     background-image: url('./assets/john-deere-logo.png');
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: 300px;
-    opacity: 0.05;
+    background-size: 200px;
+    opacity: 0.15;
     pointer-events: none;
     z-index: -1;
   }
