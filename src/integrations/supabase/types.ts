@@ -184,6 +184,147 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_profits: {
+        Row: {
+          created_at: string
+          date: string
+          hsd_buying_price: number
+          hsd_profit: number
+          hsd_selling_price: number
+          hsd_sold_liters: number
+          id: string
+          msd_buying_price: number
+          msd_profit: number
+          msd_selling_price: number
+          msd_sold_liters: number
+          station_id: string
+          total_profit: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          hsd_buying_price?: number
+          hsd_profit?: number
+          hsd_selling_price?: number
+          hsd_sold_liters?: number
+          id?: string
+          msd_buying_price?: number
+          msd_profit?: number
+          msd_selling_price?: number
+          msd_sold_liters?: number
+          station_id: string
+          total_profit?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          hsd_buying_price?: number
+          hsd_profit?: number
+          hsd_selling_price?: number
+          hsd_sold_liters?: number
+          id?: string
+          msd_buying_price?: number
+          msd_profit?: number
+          msd_selling_price?: number
+          msd_sold_liters?: number
+          station_id?: string
+          total_profit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      delivery_records: {
+        Row: {
+          created_at: string
+          date: string
+          diesel_delivered: number
+          id: string
+          petrol_delivered: number
+          station_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          diesel_delivered?: number
+          id?: string
+          petrol_delivered?: number
+          station_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          diesel_delivered?: number
+          id?: string
+          petrol_delivered?: number
+          station_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      employee_parameters: {
+        Row: {
+          amount_deposited: number | null
+          amount_to_deposit: number | null
+          cash_amount: number
+          created_at: string
+          current_diesel_level: number
+          current_petrol_level: number
+          date: string
+          deposit_balance: number | null
+          diesel_liters_sold: number
+          diesel_price: number | null
+          employee_name: string
+          id: string
+          online_amount: number
+          petrol_liters_sold: number
+          petrol_price: number | null
+          station_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_deposited?: number | null
+          amount_to_deposit?: number | null
+          cash_amount?: number
+          created_at?: string
+          current_diesel_level?: number
+          current_petrol_level?: number
+          date: string
+          deposit_balance?: number | null
+          diesel_liters_sold?: number
+          diesel_price?: number | null
+          employee_name: string
+          id?: string
+          online_amount?: number
+          petrol_liters_sold?: number
+          petrol_price?: number | null
+          station_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_deposited?: number | null
+          amount_to_deposit?: number | null
+          cash_amount?: number
+          created_at?: string
+          current_diesel_level?: number
+          current_petrol_level?: number
+          date?: string
+          deposit_balance?: number | null
+          diesel_liters_sold?: number
+          diesel_price?: number | null
+          employee_name?: string
+          id?: string
+          online_amount?: number
+          petrol_liters_sold?: number
+          petrol_price?: number | null
+          station_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -207,6 +348,83 @@ export type Database = {
           date?: string
           description?: string
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fuel_products: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          current_stock: number
+          id: string
+          minimum_stock: number
+          price_per_liter: number
+          product_name: string
+          station_id: string
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          minimum_stock?: number
+          price_per_liter: number
+          product_name: string
+          station_id: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          minimum_stock?: number
+          price_per_liter?: number
+          product_name?: string
+          station_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_products_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fuel_stations: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          location: string
+          manager_id: string | null
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          location: string
+          manager_id?: string | null
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          location?: string
+          manager_id?: string | null
+          name?: string
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -252,6 +470,67 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      inventory_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_stock: number
+          notes: string | null
+          previous_stock: number
+          product_id: string
+          quantity_change: number
+          station_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_stock: number
+          notes?: string | null
+          previous_stock: number
+          product_id: string
+          quantity_change: number
+          station_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_stock?: number
+          notes?: string | null
+          previous_stock?: number
+          product_id?: string
+          quantity_change?: number
+          station_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_logs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_logs_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lending_records: {
         Row: {
@@ -331,6 +610,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_users: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          requested_role: Database["public"]["Enums"]["user_role"]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          requested_role: Database["public"]["Enums"]["user_role"]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          requested_role?: Database["public"]["Enums"]["user_role"]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -338,7 +650,9 @@ export type Database = {
           full_name: string | null
           id: string
           role: string
+          station_id: string | null
           updated_at: string
+          user_role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
           created_at?: string
@@ -346,7 +660,9 @@ export type Database = {
           full_name?: string | null
           id: string
           role?: string
+          station_id?: string | null
           updated_at?: string
+          user_role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
           created_at?: string
@@ -354,9 +670,86 @@ export type Database = {
           full_name?: string | null
           id?: string
           role?: string
+          station_id?: string | null
           updated_at?: string
+          user_role?: Database["public"]["Enums"]["user_role"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_transactions: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          employee_id: string
+          id: string
+          payment_method: string
+          price_per_liter: number
+          product_id: string
+          quantity: number
+          station_id: string
+          total_amount: number
+          transaction_date: string
+          vehicle_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          employee_id: string
+          id?: string
+          payment_method: string
+          price_per_liter: number
+          product_id: string
+          quantity: number
+          station_id: string
+          total_amount: number
+          transaction_date?: string
+          vehicle_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          employee_id?: string
+          id?: string
+          payment_method?: string
+          price_per_liter?: number
+          product_id?: string
+          quantity?: number
+          station_id?: string
+          total_amount?: number
+          transaction_date?: string
+          vehicle_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_transactions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_transactions_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_stations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trailer_records: {
         Row: {
@@ -408,10 +801,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
+      get_user_station: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "manager" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -538,6 +938,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "manager", "employee"],
+    },
   },
 } as const
