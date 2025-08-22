@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Eye, Trash2 } from "lucide-react";
+import { Plus, Eye, Trash2, Edit, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -14,10 +14,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { RealtimeVoiceRecorder } from "@/components/RealtimeVoiceRecorder";
 
 const Customers = () => {
-  const { customers, loading, addCustomer, deleteCustomer } = useCustomers();
+  const { customers, loading, addCustomer, deleteCustomer, updateCustomer } = useCustomers();
   const { isAdmin } = useAuth();
   const [showPaidRecords, setShowPaidRecords] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
   const [formData, setFormData] = useState({
     name: ""
   });
@@ -74,6 +76,24 @@ const Customers = () => {
 
   const handleDeleteCustomer = async (id: string) => {
     await deleteCustomer(id);
+  };
+
+  const handleEditName = (customerId: string, currentName: string) => {
+    setEditingCustomer(customerId);
+    setEditingName(currentName);
+  };
+
+  const handleSaveName = async () => {
+    if (editingCustomer && editingName.trim()) {
+      await updateCustomer(editingCustomer, { name: editingName.trim() });
+      setEditingCustomer(null);
+      setEditingName("");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCustomer(null);
+    setEditingName("");
   };
 
   if (loading || customerRecordsLoading) {
@@ -178,15 +198,52 @@ const Customers = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {(showPaidRecords ? paidCustomers : customers).map((customer) => (
-          <Card key={customer.id} className="hover:shadow-lg transition-shadow">
+          <Card key={customer.id} className="group hover:shadow-lg transition-shadow bg-gradient-card border-primary/10 hover:border-primary/30">
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
-                <Link 
-                  to={`/customers/${customer.id}`}
-                  className="text-primary hover:text-primary/80 transition-colors"
-                >
-                  {customer.name}
-                </Link>
+                <div className="flex items-center gap-2 flex-1">
+                  {editingCustomer === customer.id ? (
+                    <div className="flex items-center gap-2 flex-1">
+                      <Input
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        className="text-base font-semibold"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveName();
+                          if (e.key === 'Escape') handleCancelEdit();
+                        }}
+                        autoFocus
+                      />
+                      <Button size="sm" onClick={handleSaveName} className="bg-success hover:bg-success/90">
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Link 
+                      to={`/customers/${customer.id}`}
+                      className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 flex-1"
+                    >
+                      <span>{customer.name}</span>
+                      {isAdmin && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleEditName(customer.id, customer.name);
+                          }}
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </Link>
+                  )}
+                </div>
                 <div className="flex space-x-1">
                   <Link to={`/customers/${customer.id}`}>
                     <Button variant="ghost" size="sm">

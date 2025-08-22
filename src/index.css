@@ -8,20 +8,20 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Light theme with purple accents */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Colorful light theme */
+    --background: 220 50% 97%;
+    --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 215 25% 15%;
 
-    /* Purple primary colors */
-    --primary: 263 70% 50%;
+    /* Vibrant primary colors */
+    --primary: 280 85% 60%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 263 70% 65%;
+    --primary-glow: 280 85% 75%;
 
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -39,17 +39,21 @@ All colors MUST be HSL.
     --input: 240 5.9% 90%;
     --ring: 263 70% 50%;
 
-    --success: 142 76% 36%;
+    --success: 142 85% 45%;
     --success-foreground: 0 0% 98%;
 
-    --warning: 47 96% 53%;
+    --warning: 35 95% 55%;
     --warning-foreground: 0 0% 9%;
 
-    /* Light theme gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(263 70% 50%), hsl(280 70% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(240 4% 98%), hsl(240 4% 96%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 4% 98%));
-    --gradient-purple-glow: linear-gradient(135deg, hsl(263 70% 50% / 0.05), hsl(280 70% 60% / 0.05));
+    /* Colorful info color for better visibility */
+    --info: 195 85% 50%;
+    --info-foreground: 0 0% 98%;
+
+    /* Light theme gradients with more vibrant colors */
+    --gradient-primary: linear-gradient(135deg, hsl(280 85% 60%), hsl(300 85% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 50% 97%), hsl(240 30% 95%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(280 20% 98%));
+    --gradient-purple-glow: linear-gradient(135deg, hsl(280 85% 60% / 0.05), hsl(300 85% 70% / 0.05));
 
     /* Light theme shadows */
     --shadow-sm: 0 1px 2px 0 hsl(240 5% 10% / 0.05);

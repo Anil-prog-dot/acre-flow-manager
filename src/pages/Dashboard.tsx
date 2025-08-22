@@ -83,7 +83,7 @@ const Dashboard = () => {
             date: record.created_at,
             icon: 'trailer'
           })) || [])
-        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
+        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 15);
 
         setRecentActivities(activities);
       } catch (error) {
@@ -215,7 +215,7 @@ const Dashboard = () => {
               <Activity className="h-5 w-5" />
               Recent Activity
             </CardTitle>
-            <CardDescription>Last 10 activities from all sections</CardDescription>
+            <CardDescription>Recent activities from all sections</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentActivities.length > 0 ? (

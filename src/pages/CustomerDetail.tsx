@@ -227,79 +227,47 @@ const CustomerDetail = () => {
   return (
     <div className="space-y-6">
       <div className="flex-1 space-y-6">
-        {/* Graph positioned at top right */}
-        <div className="absolute top-4 right-4 w-80 h-60">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Amount Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Amount</span>
-                  <span className="font-semibold text-lg">₹{totalAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Balance Amount</span>
-                  <span className="font-semibold text-lg text-destructive">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3">
-                  <div 
-                    className="bg-primary h-3 rounded-full transition-all duration-300" 
-                    style={{ 
-                      width: `${totalAmount > 0 ? ((totalAmount - activeRecords.reduce((sum, record) => sum + record.total, 0)) / totalAmount) * 100 : 0}%` 
-                    }}
-                  ></div>
-                </div>
-                <div className="text-xs text-muted-foreground text-center">
-                  {totalAmount > 0 ? Math.round(((totalAmount - activeRecords.reduce((sum, record) => sum + record.total, 0)) / totalAmount) * 100) : 0}% Paid
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
         
-        {/* Bulk Payment Summary below graph */}
+        {/* Bulk Payment Summary - Fixed position instead of overlapping */}
         {selectedRecords.length > 0 && (
-          <div className="absolute top-72 right-4 w-80">
-            <Card>
+          <div className="mb-6">
+            <Card className="bg-gradient-purple-glow border-primary/20">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Bulk Payment Summary</CardTitle>
+                <CardTitle className="text-lg text-primary">Bulk Payment Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between">
                     <span>Selected Records:</span>
-                    <span>{selectedRecords.length}</span>
+                    <span className="font-semibold">{selectedRecords.length}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between">
                     <span>Selected Amount:</span>
-                    <span>₹{selectedTotalAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <Label htmlFor="bulk-discount">Discount:</Label>
-                    <Input
-                      id="bulk-discount"
-                      type="number"
-                      value={bulkDiscount}
-                      onChange={(e) => setBulkDiscount(Number(e.target.value))}
-                      className="w-20 h-8 text-xs"
-                      min="0"
-                      max={selectedTotalAmount}
-                    />
-                  </div>
-                  <div className="flex justify-between font-semibold text-sm border-t pt-2">
-                    <span>Final Amount:</span>
-                    <span>₹{Math.max(0, selectedTotalAmount - bulkDiscount).toLocaleString()}</span>
+                    <span className="font-semibold">₹{selectedTotalAmount.toLocaleString()}</span>
                   </div>
                 </div>
-                <Button 
-                  onClick={handleBulkPayment}
-                  className="w-full"
-                  size="sm"
-                >
-                  Process Payment
-                </Button>
+                <div className="flex items-center gap-4">
+                  <Label htmlFor="bulk-discount" className="text-sm">Discount:</Label>
+                  <Input
+                    id="bulk-discount"
+                    type="number"
+                    value={bulkDiscount}
+                    onChange={(e) => setBulkDiscount(Number(e.target.value))}
+                    className="w-32"
+                    min="0"
+                    max={selectedTotalAmount}
+                  />
+                  <div className="flex items-center gap-2 ml-auto">
+                    <span className="text-sm font-medium">Final Amount:</span>
+                    <span className="text-lg font-bold text-primary">₹{Math.max(0, selectedTotalAmount - bulkDiscount).toLocaleString()}</span>
+                  </div>
+                  <Button 
+                    onClick={handleBulkPayment}
+                    className="bg-gradient-primary hover:shadow-glow"
+                  >
+                    Process Payment
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
