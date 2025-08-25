@@ -219,27 +219,29 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue vs Expenses Breakdown</CardTitle>
-            <CardDescription>Comprehensive view of all revenue sources vs expenses</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <ResponsiveContainer width="100%" height={400}>
-               <BarChart data={chartData}>
-                 <CartesianGrid strokeDasharray="3 3" />
-                 <XAxis dataKey="name" />
-                 <YAxis />
-                 <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
-                 <Legend />
-                 {chartData.map((entry, index) => (
-                   <Bar key={index} dataKey="value" fill={entry.fill} />
-                 ))}
-               </BarChart>
-             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <div className={`grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-2' : ''} gap-6`}>
+        {isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue vs Expenses Breakdown</CardTitle>
+              <CardDescription>Comprehensive view of all revenue sources vs expenses</CardDescription>
+            </CardHeader>
+            <CardContent>
+               <ResponsiveContainer width="100%" height={400}>
+                 <BarChart data={chartData}>
+                   <CartesianGrid strokeDasharray="3 3" />
+                   <XAxis dataKey="name" />
+                   <YAxis />
+                   <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, '']} />
+                   <Legend />
+                   {chartData.map((entry, index) => (
+                     <Bar key={index} dataKey="value" fill={entry.fill} />
+                   ))}
+                 </BarChart>
+               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>
