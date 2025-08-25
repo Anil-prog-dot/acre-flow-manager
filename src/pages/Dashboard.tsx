@@ -200,7 +200,7 @@ const Dashboard = () => {
               <stat.icon className={`h-5 w-5 md:h-4 md:w-4 ${stat.color}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-xl md:text-2xl font-bold">{stat.value}</div>
+              <div className={`text-xl md:text-2xl font-bold ${stat.color}`}>{stat.value}</div>
               <p className="text-xs text-muted-foreground">
                 {stat.description}
               </p>

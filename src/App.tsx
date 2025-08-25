@@ -11,6 +11,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { AppSidebar } from "./components/AppSidebar";
 import { HorizontalNavigation } from "./components/HorizontalNavigation";
+import { ProfileButton } from "./components/ProfileButton";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import CustomerDetail from "./pages/CustomerDetail";
@@ -36,7 +37,8 @@ const App = () => {
                     <div className="min-h-screen flex w-full">
                       <AppSidebar />
                       <main className="flex-1 flex flex-col">
-                        <header className="h-12 md:h-14 flex items-center justify-end border-b bg-gradient-card px-4 sticky top-0 z-40">
+                        <header className="h-12 md:h-14 flex items-center justify-end gap-2 border-b bg-gradient-card px-4 sticky top-0 z-40">
+                          <ProfileButton />
                           <ThemeToggle />
                         </header>
                         <HorizontalNavigation />
