@@ -178,6 +178,16 @@ const Dashboard = () => {
       fill: "hsl(var(--destructive))"
     },
     {
+      name: "Total Paid",
+      value: totalPaid,
+      fill: "hsl(var(--paid))"
+    },
+    {
+      name: "Remaining Amount",
+      value: remainingAmount,
+      fill: "hsl(var(--remaining))"
+    },
+    {
       name: "Profit",
       value: profit,
       fill: profit >= 0 ? "hsl(var(--success))" : "hsl(var(--warning))"
