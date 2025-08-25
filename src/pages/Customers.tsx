@@ -111,6 +111,13 @@ const Customers = () => {
   
   // Calculate total revenue from all customer records
   const totalCustomerRevenue = allCustomerRecords.reduce((sum, record) => sum + (record.total || 0), 0);
+  
+  // Calculate total paid amount from all customer records
+  const totalPaidAmount = allCustomerRecords.reduce((sum, record) => 
+    record.paid ? sum + (record.total || 0) : sum, 0);
+  
+  // Calculate remaining amount (total revenue - paid amount)
+  const remainingAmount = totalCustomerRevenue - totalPaidAmount;
 
   return (
     <div className="space-y-6">
@@ -172,7 +179,7 @@ const Customers = () => {
       </div>
 
       {/* Customer Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Total Customers</CardTitle>
@@ -184,15 +191,37 @@ const Customers = () => {
         </Card>
         
         {isAdmin && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₹{totalCustomerRevenue.toLocaleString()}</div>
-              <p className="text-sm text-muted-foreground">From all customer records</p>
-            </CardContent>
-          </Card>
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-revenue">₹{totalCustomerRevenue.toLocaleString()}</div>
+                <p className="text-sm text-muted-foreground">From all customer records</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Paid Amount</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-success">₹{totalPaidAmount.toLocaleString()}</div>
+                <p className="text-sm text-muted-foreground">Total payments received</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Remaining Amount</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-remaining">₹{remainingAmount.toLocaleString()}</div>
+                <p className="text-sm text-muted-foreground">Outstanding balance</p>
+              </CardContent>
+            </Card>
+          </>
         )}
       </div>
 
