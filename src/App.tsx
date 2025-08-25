@@ -36,8 +36,7 @@ const App = () => {
                     <div className="min-h-screen flex w-full">
                       <AppSidebar />
                       <main className="flex-1 flex flex-col">
-                        <header className="h-12 md:h-14 flex items-center justify-between border-b bg-gradient-card px-4 sticky top-0 z-40">
-                          <SidebarTrigger className="touch-target" />
+                        <header className="h-12 md:h-14 flex items-center justify-end border-b bg-gradient-card px-4 sticky top-0 z-40">
                           <ThemeToggle />
                         </header>
                         <HorizontalNavigation />

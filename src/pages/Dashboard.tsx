@@ -115,7 +115,15 @@ const Dashboard = () => {
   const totalRevenue = harvestorRevenue + customerRevenue + trailerRevenue;
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const miscellaneousTotal = miscellaneous.reduce((sum, record) => sum + (record.amount || 0), 0);
-  const totalHarvestorAcres = harvestorData.reduce((sum, record) => sum + (record.acres || 0), 0);
+  
+  // Calculate total paid from all sections
+  const harvestorPaid = harvestorData.filter(record => record.paid).reduce((sum, record) => sum + (record.total || 0), 0);
+  const customerPaid = allCustomerRecords.filter(record => record.paid).reduce((sum, record) => sum + (record.total || 0), 0);
+  const trailerPaid = trailerRecords.filter(record => record.paid).reduce((sum, record) => sum + (record.total || 0), 0);
+  const totalPaid = harvestorPaid + customerPaid + trailerPaid;
+  
+  // Calculate remaining amount (Total Revenue - Total Paid)
+  const remainingAmount = totalRevenue - totalPaid;
   
   // Calculate profit (Total Revenue - Total Expenses)
   const profit = totalRevenue - (totalExpenses + miscellaneousTotal);
@@ -126,21 +134,35 @@ const Dashboard = () => {
       value: `₹${totalRevenue.toLocaleString()}`,
       description: "All revenue sources",
       icon: BarChart3,
-      color: "text-success"
+      color: "text-revenue"
     }] : []),
     {
       title: "Total Expenses",
       value: `₹${(totalExpenses + miscellaneousTotal).toLocaleString()}`,
       description: "All expenses",
       icon: Receipt,
-      color: "text-warning"
+      color: "text-expenses"
     },
+    ...(isAdmin ? [{
+      title: "Total Paid",
+      value: `₹${totalPaid.toLocaleString()}`,
+      description: "Paid records from all sections",
+      icon: Activity,
+      color: "text-paid"
+    }] : []),
+    ...(isAdmin ? [{
+      title: "Remaining Amount",
+      value: `₹${remainingAmount.toLocaleString()}`,
+      description: "Total revenue - Total paid",
+      icon: Clock,
+      color: "text-remaining"
+    }] : []),
     ...(isAdmin ? [{
       title: "Profit",
       value: `₹${profit.toLocaleString()}`,
       description: profit >= 0 ? "Net profit" : "Net loss",
       icon: TrendingUp,
-      color: profit >= 0 ? "text-success" : "text-destructive"
+      color: "text-profit"
     }] : [])
   ];
 

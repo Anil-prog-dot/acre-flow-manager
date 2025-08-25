@@ -49,6 +49,22 @@ All colors MUST be HSL.
     --info: 195 85% 50%;
     --info-foreground: 0 0% 98%;
 
+    /* Dashboard stat colors */
+    --revenue: 220 85% 55%;
+    --revenue-foreground: 0 0% 98%;
+    
+    --expenses: 0 84% 60%;
+    --expenses-foreground: 0 0% 98%;
+    
+    --remaining: 25 95% 60%;
+    --remaining-foreground: 0 0% 98%;
+    
+    --paid: 260 85% 65%;
+    --paid-foreground: 0 0% 98%;
+    
+    --profit: 142 85% 45%;
+    --profit-foreground: 0 0% 98%;
+
     /* Light theme gradients with more vibrant colors */
     --gradient-primary: linear-gradient(135deg, hsl(280 85% 60%), hsl(300 85% 70%));
     --gradient-secondary: linear-gradient(135deg, hsl(220 50% 97%), hsl(240 30% 95%));

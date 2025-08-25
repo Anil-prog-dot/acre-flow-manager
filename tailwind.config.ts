@@ -60,6 +60,26 @@ export default {
 					DEFAULT: 'hsl(var(--warning))',
 					foreground: 'hsl(var(--warning-foreground))'
 				},
+				revenue: {
+					DEFAULT: 'hsl(var(--revenue))',
+					foreground: 'hsl(var(--revenue-foreground))'
+				},
+				expenses: {
+					DEFAULT: 'hsl(var(--expenses))',
+					foreground: 'hsl(var(--expenses-foreground))'
+				},
+				remaining: {
+					DEFAULT: 'hsl(var(--remaining))',
+					foreground: 'hsl(var(--remaining-foreground))'
+				},
+				paid: {
+					DEFAULT: 'hsl(var(--paid))',
+					foreground: 'hsl(var(--paid-foreground))'
+				},
+				profit: {
+					DEFAULT: 'hsl(var(--profit))',
+					foreground: 'hsl(var(--profit-foreground))'
+				},
 				earth: {
 					green: 'hsl(var(--earth-green))',
 					brown: 'hsl(var(--earth-brown))',
