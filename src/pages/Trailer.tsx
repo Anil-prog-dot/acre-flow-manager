@@ -248,7 +248,7 @@ export default function Trailer() {
               <CardTitle>Total Amount</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₹{trailerRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+              <div className="text-2xl font-bold text-blue-600">₹{trailerRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
             </CardContent>
           </Card>
         )}
@@ -256,17 +256,17 @@ export default function Trailer() {
           <CardHeader>
             <CardTitle>Amount Paid</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
-          </CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+            </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Balance Amount</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
-          </CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+            </CardContent>
         </Card>
       </div>
 

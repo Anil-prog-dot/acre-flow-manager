@@ -293,7 +293,7 @@ const CustomerDetail = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <p><strong>Paid Records:</strong> {paidRecords.length}</p>
-              <p><strong>Paid Amount:</strong> ₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</p>
+              <p><strong>Paid Amount:</strong> <span className="text-green-600 font-semibold">₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</span></p>
             </CardContent>
           </Card>
 
@@ -304,7 +304,7 @@ const CustomerDetail = () => {
             <CardContent className="space-y-2">
               <p><strong>Total Records:</strong> {records.length}</p>
               <p><strong>Total Acres:</strong> {totalAcres}</p>
-              {isAdmin && <p><strong>Total Amount:</strong> ₹{totalAmount.toLocaleString()}</p>}
+              {isAdmin && <p><strong>Total Amount:</strong> <span className="text-blue-600 font-semibold">₹{totalAmount.toLocaleString()}</span></p>}
             </CardContent>
           </Card>
 
@@ -314,7 +314,7 @@ const CustomerDetail = () => {
             </CardHeader>
             <CardContent>
               <p><strong>Active Records:</strong> {activeRecords.length}</p>
-              <p><strong>Balance Amount:</strong> ₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</p>
+              <p><strong>Balance Amount:</strong> <span className="text-orange-600 font-semibold">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</span></p>
             </CardContent>
           </Card>
         </div>

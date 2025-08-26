@@ -184,7 +184,7 @@ const Harvestor = () => {
               <CardTitle>Total Amount</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl md:text-2xl font-bold">₹{totalAmount.toLocaleString()}</div>
+              <div className="text-xl md:text-2xl font-bold text-blue-600">₹{totalAmount.toLocaleString()}</div>
               <p className="text-sm text-muted-foreground">
                 All operations
               </p>
@@ -196,24 +196,24 @@ const Harvestor = () => {
           <CardHeader>
             <CardTitle>Amount Paid</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-xl md:text-2xl font-bold">₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
-            <p className="text-sm text-muted-foreground">
-              {paidRecords.length} paid records
-            </p>
-          </CardContent>
+            <CardContent>
+              <div className="text-xl md:text-2xl font-bold text-green-600">₹{paidRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+              <p className="text-sm text-muted-foreground">
+                {paidRecords.length} paid records
+              </p>
+            </CardContent>
         </Card>
 
         <Card className="mobile-card">
           <CardHeader>
             <CardTitle>Balance Amount</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-xl md:text-2xl font-bold">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
-            <p className="text-sm text-muted-foreground">
-              {activeRecords.length} pending records
-            </p>
-          </CardContent>
+            <CardContent>
+              <div className="text-xl md:text-2xl font-bold text-orange-600">₹{activeRecords.reduce((sum, record) => sum + record.total, 0).toLocaleString()}</div>
+              <p className="text-sm text-muted-foreground">
+                {activeRecords.length} pending records
+              </p>
+            </CardContent>
         </Card>
       </div>
 
